@@ -6,24 +6,23 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 #region modules from the Environment
-import * as sciBase from "thingy-sci-base"
-# import * as routes from ""
-# import * as handlers from ""
+import * as sciBase from "thingy-sci-ws-base"
+import { onConnect } from "./wsimodule.js"
+import { getState } from "./serverstatemodule.js"
+import { passphrase } from "./configmodule.js"
 #endregion
 
 ############################################################
-routes = {}
+returnCurrentState = (req, res) ->
+    res.send(getState())
 
-routes["sampleRoute"] = (res, req) ->
-    # req.body is our json
-    # handle
-    res.send("Hello World!")
-
-    
 ############################################################
 export prepareAndExpose = ->
     log "prepareAndExpose"
-    # handlers.setService(this)
-    sciBase.prepareAndExpose(null, routes)
+
+    sciBase.prepareAndExpose(null, { "getState": returnCurrentState })
+
+    sciBase.onWebsocketConnect("/", onConnect)
     log "Server listening!"
+    log "passphrase is: #{passphrase}"
     return
