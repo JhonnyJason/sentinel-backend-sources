@@ -32,9 +32,9 @@ export getData = -> data
 
 heartbeat = ->
     log "heartbeat"
-    requestMRR()
-    requestHICP()
-    requestGDPG()
+    await requestMRR()
+    await requestHICP()
+    # await requestGDPG()
     return
 
 ############################################################
@@ -58,12 +58,33 @@ requestMRR = ->
     catch err then log err
     return
 
-
 ############################################################
 requestHICP = ->
     log "requestHICP"
     try # M.RCH_A.NSA.CP-HI00.EA20
-        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/.M.CP00.EA?format=JSON&startPeriod=2025-05&endPeriod=2025-07")
+        # response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_manr?freq=M&unit=RCH_A&coicop=CP00&geo=EA20&time=2025-06&format=JSON") # Fails...
+        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/M.RCH_A.CP00.EA20?format=JSON")
+        hicpData = await response.json()
+
+        # log Object.keys(hicpData)
+        # olog hicpData.value
+        # olog hicpData.dimension.time
+
+        allValues = hicpData.value
+        indices = hicpData.dimension.time.category.index
+
+        indexKeys = Object.keys(indices)
+        indexKeys = indexKeys.sort().reverse()
+        log indexKeys
+
+        i = 0
+        hicp = allValues[indices[indexKeys[i]]]
+        while !hicp?
+            i++
+            hicp = allValues[indices[indexKeys[i]]]
+        
+        data.hicp = hicp
+        
     catch err then log err
     return
 
