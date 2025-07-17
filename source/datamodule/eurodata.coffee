@@ -34,7 +34,7 @@ heartbeat = ->
     log "heartbeat"
     await requestMRR()
     await requestHICP()
-    # await requestGDPG()
+    await requestGDPG()
     return
 
 ############################################################
@@ -44,17 +44,17 @@ requestMRR = ->
         response = await fetch("https://data-api.ecb.europa.eu/service/data/FM/B.U2.EUR.4F.KR.MRR_FR.LEV?lastNObservations=1")
         fullString = await response.text()
         
-        log fullString
+        # log fullString
         # hacky extraction of the searched for value
         tokens = fullString.split("generic:ObsDimension value=\"")
         tokens = tokens[1].split("\"/>")
         date = tokens[0].trim()
 
-        valuePercent = tokens[1].trim().replace("<generic:ObsValue value=\"", "")
+        mrr = parseFloat(tokens[1].trim().replace("<generic:ObsValue value=\"", ""))
 
         log date
-        log valuePercent
-        data.mrr = "#{valuePercent}%"
+        log mrr
+        data.mrr = "#{mrr.toFixed(2)}%"
     catch err then log err
     return
 
@@ -75,16 +75,18 @@ requestHICP = ->
 
         indexKeys = Object.keys(indices)
         indexKeys = indexKeys.sort().reverse()
-        log indexKeys
+        # log indexKeys
 
         i = 0
         hicp = allValues[indices[indexKeys[i]]]
         while !hicp?
             i++
             hicp = allValues[indices[indexKeys[i]]]
-        
-        data.hicp = hicp
-        
+
+        if typeof hicp != "number" then hicp = parseFloat(hicp)        
+        data.hicp = "#{hicp.toFixed(2)}%"
+        olog {hicp}
+
     catch err then log err
     return
 
@@ -92,8 +94,32 @@ requestHICP = ->
 requestGDPG = ->
     log "requestGDPG"
     try
-        response = await fetch("")
-        fullString = await response.text()
+        # response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/namq_10_gdp/Q.CP_MEUR.NSA.B1GQ.EA20?format=JSON") # Quarterly
+        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10_gdp/A.CP_MEUR.B1GQ.EA20?format=JSON") # Annual
+        gdpData = await response.json()
+
+        allValues = gdpData.value
+        indices = gdpData.dimension.time.category.index
+
+        indexKeys = Object.keys(indices)
+        indexKeys = indexKeys.sort().reverse()
+        # log indexKeys
+
+        i = 0
+        latestGDP = allValues[indices[indexKeys[i]]]
+        while !latestGDP?
+            i++
+            latestGDP = allValues[indices[indexKeys[i]]]
+        
+        i++
+        gdpBefore = allValues[indices[indexKeys[i]]]
+        
+        if typeof latestGDP != "number" then latestGDP = parseFloat(latestGDP)
+        if typeof gdpBefore != "number" then gdpBefore = parseFloat(gdpBefore)
+
+        gdpg = (100.00 * latestGDP / gdpBefore ) - 100.00
+        data.gdpg = "#{gdpg.toFixed(2)}%"
+        olog { latestGDP, gdpBefore, gdpg }    
         
     catch err then log err
     return
