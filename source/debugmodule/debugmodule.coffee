@@ -3,7 +3,7 @@ import { addModulesToDebug } from "thingy-debug"
 ############################################################
 modulesToDebug = {
 
-    eurodata: true
+    # eurodata: true
     # usdata: true
     # scimodule: true
     # startupmodule: true

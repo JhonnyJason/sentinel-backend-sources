@@ -26,7 +26,6 @@ export initialize = ->
     heartbeat()
     return
 
-
 ############################################################
 export getData = -> data
 
