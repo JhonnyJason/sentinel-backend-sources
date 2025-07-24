@@ -33,8 +33,8 @@ export initialize = ->
 heartbeat = ->
     log "heartbeat"
     await requestMRR()
-    # await requestHICP()
-    # await requestGDPG()
+    await requestHICP()
+    await requestGDPG()
     return
 
 
@@ -111,44 +111,37 @@ requestHICP = ->
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
+        
+        params = new URLSearchParams({
+            appId: cfg.estatAPIKey,
+            lang: "E",
+            statsDataId: "0003427113",
+            cdArea: "00000",
+            cdCat01: "0001",
+            cdTab: "3",
+            # cdTime: "#{lastYear}01"
+            metaGetFlg: "N",
+            cntGetFlg: "N",
+            explanationGetFlg:"N",
+            annotationGetFlg: "N",
+            sectionHeaderFlg: "1",
+            replaceSpChars: "0"
+        })
 
-        bodyJSON = {
-            registrationkey: cfg.blsAPIKey,
-            seriesid:["CUUR0000SA0"],
-            startyear: lastYear,
-            endyear: thisYear,
-        }
-
-        url = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
-        fetchOptions = {
-            method: "POST",
-            headers: {
-             'Content-Type': 'application/json'
-            }
-            body: JSON.stringify(bodyJSON)
-        }
-
-        response = await fetch(url, fetchOptions)
+        url = "http://api.e-stat.go.jp/rest/3.0/app/json/getStatsData?#{params.toString()}"
+        response = await fetch(url)
         hicpData = await response.json()
-        
-        if hicpData.status != "REQUEST_SUCCEEDED" then throw new Error(hicpData.message)
-        hicpData = hicpData.Results.series[0].data
+        hicpData = hicpData.GET_STATS_DATA.STATISTICAL_DATA.DATA_INF.VALUE
 
-        # olog hicpData
-        for d in hicpData when d.latest? and d.latest == "true"
-            latestValue = parseFloat(d.value)
-            period = d.period
-            break
+        timeToValue = {}
 
-        for d in hicpData when d.period == period and d.year == lastYear
-            valueBefore = parseFloat(d.value)
-            break
+        for d in hicpData when d["@time"].startsWith(lastYear) || d["@time"].startsWith(thisYear)
+            timeToValue[d["@time"]] = d["$"]
 
-        
-        hicp = (100.0 * latestValue / valueBefore) - 100
+        orderedTimeLine = Object.keys(timeToValue).sort().reverse()
+        # olog orderedTimeLine
+        hicp = parseFloat(timeToValue[orderedTimeLine[0]])
         data.hicp = "#{hicp.toFixed(2)}%"
-
-        oloc { hicp }
         olog data
 
     catch err then log err
@@ -157,35 +150,30 @@ requestHICP = ->
 ############################################################
 requestGDPG = ->
     log "requestGDPG"
-    try
+    try 
+        url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283479&fileKind=1" # Quarterly Estimates Nominal GDP (seasonally adjusted) -> csv file
+        response = await fetch(url) 
+        gdpCSV = await response.text()
+
+        csvLines = gdpCSV.split("\n")
+        csvLines = csvLines.slice(-10)
+
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
-        yearBefore = "#{date.getFullYear() - 2}"
-        url = "https://apps.bea.gov/api/data?&UserId=#{cfg.beaAPIKey}&method=GetData&datasetname=NIPA&TableName=T10105&Frequency=Q&Year=#{thisYear},#{lastYear}, #{yearBefore}"
-        response = await fetch(url) 
-        allGDPData = await response.json()
 
-        isRelevantResult = (result) -> result.LineDescription == "Gross domestic product"  
-        gdpData = allGDPData.BEAAPI.Results.Data.filter(isRelevantResult)
-        # olog gdpData
+        isRelevant = (line) ->
+            return line.startsWith("#{lastYear}/ 1- 3.") || line.startsWith("#{thisYear}/ 1- 3.") || line.startsWith("/ 4- 6.") || line.startsWith("/ 7- 9.") || line.startsWith("/ 10- 12.")
 
-        periodToData = {}
-        for d in gdpData
-            periodToData[d.TimePeriod] = d.DataValue.replaceAll(",", "")
-
-        # olog periodToData
-        periodList = Object.keys(periodToData).sort().reverse()
-        # log periodList
-        if periodList.length < 5 then throw new Error("To few Results found! Received only #{periodList}")
-
-        latestGDP = parseFloat(periodToData[periodList[0]])
-        gdpBefore = parseFloat(periodToData[periodList[4]])
-
-        gdpg = (100.00 * latestGDP / gdpBefore ) - 100.00
+        relevantLines = csvLines.filter(isRelevant)
+        # olog relevantLines
+        t = relevantLines[relevantLines.length - 1].split(",")
+        gdpg = parseFloat(t[1])
         data.gdpg = "#{gdpg.toFixed(2)}%"
 
-        olog { latestGDP, gdpBefore, gdpg }    
+        olog { data }    
+
+        return
 
     catch err then log err
     return

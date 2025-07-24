@@ -62,7 +62,7 @@ requestMRR = ->
 ############################################################
 requestHICP = ->
     log "requestHICP"
-    try 
+    try
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"

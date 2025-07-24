@@ -19,6 +19,7 @@ catch err
 export blsAPIKey = localCfg.blsAPIKey || ""
 export beaAPIKey = localCfg.beaAPIKey || ""
 export fredAPIKey = localCfg.fredAPIKey || ""
+export estatAPIKey = localCfg.estatAPIKey || ""
 export passphrase = localCfg.blsAPIKey || "I shall pass!"
 
 ############################################################
