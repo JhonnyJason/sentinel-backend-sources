@@ -5,6 +5,7 @@ modulesToDebug = {
 
     # eurodata: true
     # usdata: true
+    # japandata: true
     # scimodule: true
     # startupmodule: true
     # wsimodule: true
