@@ -36,9 +36,15 @@ export getData = -> data
 
 heartbeat = ->
     log "heartbeat"
-    await requestMRR()
-    await requestHICP()
-    await requestGDPG()
+    if cfg.testRun?
+        switch(cfg.testRun)
+            when "usMRR" then await requestMRR()
+            when "usHICP" then await requestHICP()
+            when "usGDPG" then await requestGDPG()
+    else 
+        await requestMRR()
+        await requestHICP()
+        await requestGDPG()
     return
 
 ############################################################
@@ -113,17 +119,28 @@ requestHICP = ->
 requestGDPG = ->
     log "requestGDPG"
     try
+        ## Table T10106 is inflation adjusted
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
         yearBefore = "#{date.getFullYear() - 2}"
-        url = "https://apps.bea.gov/api/data?&UserId=#{cfg.beaAPIKey}&method=GetData&datasetname=NIPA&TableName=T10105&Frequency=Q&Year=#{thisYear},#{lastYear}, #{yearBefore}"
+        url = "https://apps.bea.gov/api/data?&UserId=#{cfg.beaAPIKey}&method=GetData&datasetname=NIPA&TableName=T10106&Frequency=Q&Year=#{thisYear},#{lastYear}, #{yearBefore}"
         response = await fetch(url) 
         allGDPData = await response.json()
 
         isRelevantResult = (result) -> result.LineDescription == "Gross domestic product"  
+        # isRelevantResult = (result) -> result.LineDescription == "Gross domestic product (Real, SAAR)"
         gdpData = allGDPData.BEAAPI.Results.Data.filter(isRelevantResult)
-        # olog gdpData
+
+        ## checking what we have available here :-)        
+        # gdpData = allGDPData.BEAAPI.Results.Data
+        # # olog gdpData
+        # vals = new Set()
+
+        # vals.add(d.LineDescription) for d in gdpData
+        # olog new Array(...vals)
+
+        # return
 
         periodToData = {}
         for d in gdpData
@@ -135,12 +152,13 @@ requestGDPG = ->
         if periodList.length < 5 then throw new Error("To few Results found! Received only #{periodList}")
 
         latestGDP = parseFloat(periodToData[periodList[0]])
-        gdpBefore = parseFloat(periodToData[periodList[4]])
+        gdpBefore = parseFloat(periodToData[periodList[1]]) # last Quarted
 
-        gdpg = (100.00 * latestGDP / gdpBefore ) - 100.00
-        data.gdpg = "#{gdpg.toFixed(2)}%"
+        gdpgQ = (100.00 * latestGDP / gdpBefore ) - 100.00
+        gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
+        data.gdpg = "#{gdpgA.toFixed(2)}%"
 
-        olog { latestGDP, gdpBefore, gdpg }    
+        olog { latestGDP, gdpBefore, data }    
 
     catch err then log err
     return

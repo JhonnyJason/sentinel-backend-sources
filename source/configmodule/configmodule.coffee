@@ -25,3 +25,20 @@ export passphrase = localCfg.blsAPIKey || "I shall pass!"
 ############################################################
 export statisticsDataRequestHeartbeatMS = 3600000 #1h
 
+############################################################
+# export testRun = "euroMRR"
+# export testRun = "euroHICP"
+# export testRun = "euroGDPG"
+
+# export testRun = "usMRR"
+# export testRun = "usHICP"
+# export testRun = "usGDPG"
+
+# export testRun = "japanMRR"
+# export testRun = "japanHICP"
+# export testRun = "japanGDPG"
+
+# export testRun = "swissMRR"
+# export testRun = "swissHICP"
+# export testRun = "swissGDPG"
+

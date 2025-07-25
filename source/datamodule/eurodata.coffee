@@ -27,13 +27,17 @@ export initialize = ->
     return
 
 ############################################################
-export getData = -> data
-
 heartbeat = ->
     log "heartbeat"
-    await requestMRR()
-    await requestHICP()
-    await requestGDPG()
+    if cfg.testRun?
+        switch(cfg.testRun)
+            when "euroMRR" then await requestMRR()
+            when "euroHICP" then await requestHICP()
+            when "euroGDPG" then await requestGDPG()
+    else 
+        await requestMRR()
+        await requestHICP()
+        await requestGDPG()
     return
 
 ############################################################
@@ -91,11 +95,19 @@ requestHICP = ->
 
 ############################################################
 requestGDPG = ->
-    log "requestGDPG"
+    ## Here we want Annualized QoQ growth of Real GDP 
+    #  -> Adjusted for inflation, Seasonality and Calendar 
     try
-        # response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/namq_10_gdp/Q.CP_MEUR.NSA.B1GQ.EA20?format=JSON") # Quarterly
-        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10_gdp/A.CP_MEUR.B1GQ.EA20?format=JSON") # Annual
+        ## Key buildup = freq.unit.s_adj.na_item.geo
+        # freq: Q -> Quarterly
+        # unit: CLV_I10 -> Chained Linked Volume Index from 2010 (inflation adjusted)
+        # s_adj: SCA -> Saesonally and Calendar adjusted
+        # na_item: B1GQ -> Gross domestic product at market prices
+        # geo: EA20 -> EuroArea with the 20 Member states from 2023
+        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/namq_10_gdp/Q.CLV_I10.SCA.B1GQ.EA20?format=JSON") 
         gdpData = await response.json()
+
+        # olog gdpData
 
         allValues = gdpData.value
         indices = gdpData.dimension.time.category.index
@@ -116,9 +128,14 @@ requestGDPG = ->
         if typeof latestGDP != "number" then latestGDP = parseFloat(latestGDP)
         if typeof gdpBefore != "number" then gdpBefore = parseFloat(gdpBefore)
 
-        gdpg = (100.00 * latestGDP / gdpBefore ) - 100.00
-        data.gdpg = "#{gdpg.toFixed(2)}%"
-        olog { latestGDP, gdpBefore, gdpg }    
+        gdpgQ = (100.00 * latestGDP / gdpBefore ) - 100.00
+        gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
+
+        data.gdpg = "#{gdpgA.toFixed(2)}%"
+        olog { latestGDP, gdpBefore, data }    
         
     catch err then log err
     return
+
+############################################################
+export getData = -> data

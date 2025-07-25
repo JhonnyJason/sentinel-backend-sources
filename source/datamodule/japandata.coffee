@@ -32,9 +32,17 @@ export initialize = ->
 ############################################################
 heartbeat = ->
     log "heartbeat"
-    await requestMRR()
-    await requestHICP()
-    await requestGDPG()
+
+    if cfg.testRun?
+        switch(cfg.testRun)
+            when "japanMRR" then await requestMRR()
+            when "japanHICP" then await requestHICP()
+            when "japanGDPG" then await requestGDPG()
+    else 
+        await requestMRR()
+        await requestHICP()
+        await requestGDPG()
+
     return
 
 
@@ -150,8 +158,9 @@ requestHICP = ->
 ############################################################
 requestGDPG = ->
     log "requestGDPG"
-    try 
-        url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283479&fileKind=1" # Quarterly Estimates Nominal GDP (seasonally adjusted) -> csv file
+    try
+    
+        url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283486&fileKind=1" # Quarterly Estimates of Real GDP (seasonally adjusted) -> csv file
         response = await fetch(url) 
         gdpCSV = await response.text()
 
