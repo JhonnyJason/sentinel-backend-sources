@@ -121,7 +121,7 @@ requestGDPG = ->
         while !latestGDP?
             i++
             latestGDP = allValues[indices[indexKeys[i]]]
-        
+            if i > 300 then throw new Error("Something is wrong with the indices...")
         i++
         gdpBefore = allValues[indices[indexKeys[i]]]
         
@@ -132,7 +132,7 @@ requestGDPG = ->
         gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
 
         data.gdpg = "#{gdpgA.toFixed(2)}%"
-        olog { latestGDP, gdpBefore, data }    
+        olog { latestGDP, gdpBefore, gdpgQ, gdpgA, data }    
         
     catch err then log err
     return

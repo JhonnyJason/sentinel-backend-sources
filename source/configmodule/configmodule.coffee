@@ -42,3 +42,6 @@ export statisticsDataRequestHeartbeatMS = 3600000 #1h
 # export testRun = "swissHICP"
 # export testRun = "swissGDPG"
 
+# export testRun = "canadaMRR"
+# export testRun = "canadaHICP"
+# export testRun = "canadaGDPG"
