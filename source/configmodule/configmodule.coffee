@@ -20,7 +20,8 @@ export blsAPIKey = localCfg.blsAPIKey || ""
 export beaAPIKey = localCfg.beaAPIKey || ""
 export fredAPIKey = localCfg.fredAPIKey || ""
 export estatAPIKey = localCfg.estatAPIKey || ""
-export passphrase = localCfg.blsAPIKey || "I shall pass!"
+export absAPIKey = localCfg.absAPIKey || ""
+export passphrase = localCfg.passphrase || "I shall pass!"
 
 ############################################################
 export statisticsDataRequestHeartbeatMS = 3600000 #1h
@@ -45,3 +46,7 @@ export statisticsDataRequestHeartbeatMS = 3600000 #1h
 # export testRun = "canadaMRR"
 # export testRun = "canadaHICP"
 # export testRun = "canadaGDPG"
+
+# export testRun = "aussieMRR"
+# export testRun = "aussieHICP"
+# export testRun = "aussieGDPG"

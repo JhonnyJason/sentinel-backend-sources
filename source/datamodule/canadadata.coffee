@@ -26,7 +26,6 @@ export initialize = ->
     heartbeat()
     return
 
-
 ############################################################
 heartbeat = ->
     log "heartbeat"
@@ -65,7 +64,7 @@ requestHICP = ->
     try 
         url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
         bodyJSON = [{
-            "vectorId": 41690973, # Raw CPI Level
+            "vectorId": 41690973, # Raw CPI Level, no seasonal adjustment
             "latestN": 13
         }]
 

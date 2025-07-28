@@ -8,6 +8,7 @@ modulesToDebug = {
     # japandata: true
     # swissdata: true
     # canadadata: true
+    aussiedata: true
     # scimodule: true
     # startupmodule: true
     # wsimodule: true

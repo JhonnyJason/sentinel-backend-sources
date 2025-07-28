@@ -115,7 +115,7 @@ requestMRR = ->
 ############################################################
 requestHICP = ->
     log "requestHICP"
-    try 
+    try
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
@@ -123,7 +123,7 @@ requestHICP = ->
         params = new URLSearchParams({
             appId: cfg.estatAPIKey,
             lang: "E",
-            statsDataId: "0003427113",
+            statsDataId: "0003427113", # is not seasonally adjusted
             cdArea: "00000",
             cdCat01: "0001",
             cdTab: "3",

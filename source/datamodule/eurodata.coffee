@@ -64,8 +64,8 @@ requestMRR = ->
 ############################################################
 requestHICP = ->
     log "requestHICP"
-    try # M.RCH_A.NSA.CP-HI00.EA20
-        # response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_manr?freq=M&unit=RCH_A&coicop=CP00&geo=EA20&time=2025-06&format=JSON") # Fails...
+    try 
+        # prc_hicp_manr has no seasonal adjustment
         response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/M.RCH_A.CP00.EA20?format=JSON")
         hicpData = await response.json()
 

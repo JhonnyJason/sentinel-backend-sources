@@ -69,6 +69,7 @@ requestMRR = ->
 requestHICP = ->
     log "requestHICP"
     try
+        # no Seasonal adjustment on Dataset CUUR0000SA0
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
