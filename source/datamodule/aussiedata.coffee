@@ -41,7 +41,6 @@ heartbeat = ->
         await requestGDPG()
     return
 
-
 ############################################################
 excractLatestYoYHICP = (sdmxJSON) ->
     key = "1:0:0:0:0" # YoY Change in %, All groups CPI, not seasonally adjusted
