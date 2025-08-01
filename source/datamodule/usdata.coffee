@@ -8,10 +8,13 @@ import { createLogFunctions } from "thingy-debug"
 import * as cfg from "./configmodule.js"
 
 ############################################################
-data = { 
+data = {
     hicp: NaN,
+    hicpMeta: {}
     mrr: NaN,
+    mrrMeta: {}
     gdpg: NaN 
+    gdpgMeta: {}
 }
 
 ############################################################
@@ -55,13 +58,19 @@ requestMRR = ->
         response = await fetch(url)
         mrrData = await response.json()
         
-        # olog mmrData.observations[0]
+        # olog mrrData.observations[0]
         mrr = parseFloat(mrrData.observations[0].value)
+        mrrDate = new Date(mrrData.observations[0].date)
+
         data.mrr = "#{mrr.toFixed(2)}%"
         
-        olog { mrr }
+        data.mrrMeta = {
+            source: '<a href="https://fred.stlouisfed.org/">FRED</a>',
+            dataSet: "Federal Funds Target Range - Upper Limit (DFEDTARU)",
+            date: mrrDate # DATE
+        }
+        # olog { mrr }
         olog data
-
     catch err then log err
     return
 
@@ -100,6 +109,7 @@ requestHICP = ->
         for d in hicpData when d.latest? and d.latest == "true"
             latestValue = parseFloat(d.value)
             period = d.period
+            dateString = "#{d.periodName} #{d.year}"
             break
 
         for d in hicpData when d.period == period and d.year == lastYear
@@ -110,7 +120,12 @@ requestHICP = ->
         hicp = (100.0 * latestValue / valueBefore) - 100
         data.hicp = "#{hicp.toFixed(2)}%"
 
-        oloc { hicp }
+        data.hicpMeta = {
+            source: '<a href="https://www.bls.gov/" target="_blank">U.S Bureau of Labor Statistics</a>',
+            dataSet: "Consumer Price Index for All Urban Consumers (CUUR0000SA0)",
+            date: dateString
+        }
+
         olog data
 
     catch err then log err
@@ -153,11 +168,21 @@ requestGDPG = ->
         if periodList.length < 5 then throw new Error("To few Results found! Received only #{periodList}")
 
         latestGDP = parseFloat(periodToData[periodList[0]])
-        gdpBefore = parseFloat(periodToData[periodList[1]]) # last Quarted
+        gdpBefore = parseFloat(periodToData[periodList[1]]) # last Quarter
+
+        #format Period
+        ts = periodList[0].split("Q")
+        dateString = "Q#{ts[1]} #{ts[0]}"
 
         gdpgQ = (100.00 * latestGDP / gdpBefore ) - 100.00
         gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
         data.gdpg = "#{gdpgA.toFixed(2)}%"
+
+        data.gdpgMeta = {
+            source: '<a href="https://www.bea.gov/" target="_blank">U.S. Bureau of Economic Analysis</a>',
+            dataSet: "GDP (NIPA / T10106) Real GDP SA QoQ% annualized",
+            date: dateString
+        }
 
         olog { latestGDP, gdpBefore, data }    
 

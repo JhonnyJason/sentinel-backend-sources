@@ -8,10 +8,29 @@ import { createLogFunctions } from "thingy-debug"
 import * as cfg from "./configmodule.js"
 
 ############################################################
+monthToName = {
+    "01": "January"
+    "02": "February"
+    "03": "March"
+    "04": "April"
+    "05": "May"
+    "06": "June"
+    "07": "July"
+    "08": "August"
+    "09": "September"
+    "10": "October"
+    "11": "November"
+    "12": "December"
+}
+
+############################################################
 data = { 
     hicp: NaN,
+    hicpMeta: {}
     mrr: NaN,
+    mrrMeta: {}
     gdpg: NaN 
+    gdpgMeta: {}
 }
 
 ############################################################
@@ -44,7 +63,6 @@ heartbeat = ->
         await requestGDPG()
 
     return
-
 
 ############################################################
 buildBOJUrl = (seriesCode, startYear, endYear) -> 
@@ -105,10 +123,18 @@ requestMRR = ->
         dates = Object.keys(dateToValue).sort().reverse()
         # log dates
 
+        # log dates[0]
+        mrrDate = new Date(dates[0])
+
         mrr = parseFloat(dateToValue[dates[0]])
         data.mrr = "#{mrr.toFixed(2)}%"
-        olog data
+        data.mrrMeta = {
+            source: '<a href="https://www.boj.or.jp/en/">BOJ</a>',
+            dataSet: "Basic Loan Rate (IR01'MADR1Z@D)",
+            date: mrrDate # DATE
+        }
 
+        olog data
     catch err then log err
     return
 
@@ -147,11 +173,21 @@ requestHICP = ->
             timeToValue[d["@time"]] = d["$"]
 
         orderedTimeLine = Object.keys(timeToValue).sort().reverse()
-        # olog orderedTimeLine
+        olog orderedTimeLine
+
+        time = orderedTimeLine[0]
+        dateString = "#{monthToName[time.slice(-2)]} #{time.slice(0, 4)}"
+
+
         hicp = parseFloat(timeToValue[orderedTimeLine[0]])
         data.hicp = "#{hicp.toFixed(2)}%"
-        olog data
+        data.hicpMeta = {
+            source: '<a href="https://www.e-stat.go.jp/en" target="_blank">E-Stat Japan</a>',
+            dataSet: "Consumer Price Index / 2020-Base Consumer Price Index (0003427113)",
+            date: dateString
+        }
 
+        olog data
     catch err then log err
     return
 
@@ -178,12 +214,30 @@ requestGDPG = ->
         # olog relevantLines
         t = relevantLines[relevantLines.length - 1].split(",")
         gdpg = parseFloat(t[1])
+
+        if t[0].startsWith("#{lastYear}/ 1- 3.") 
+            dateString = "Q1 #{lastYear}"
+        if t[0].startsWith("#{thisYear}/ 1- 3.") 
+            dateString = "Q1 #{thisYear}"
+        if t[0].startsWith("/ 4- 6.")
+            td = relevantLines[relevantLines.length - 2].split(",")[0]
+            dateString = "Q2 #{td.slice(0,4)}"
+        if t[0].startsWith("/ 7- 9.") 
+            td = relevantLines[relevantLines.length - 3].split(",")[0]
+            dateString = "Q3 #{td.slice(0,4)}"
+        if t[0].startsWith("/ 10- 12.")
+            td = relevantLines[relevantLines.length - 4].split(",")[0]
+            dateString = "Q4 #{td.slice(0,4)}"
+
         data.gdpg = "#{gdpg.toFixed(2)}%"
 
+        data.gdpgMeta = {
+            source: '<a href="https://www.e-stat.go.jp/en" target="_blank">E-Stat Japan</a>',
+            dataSet: "Real Gross Domestic Product (seasonally adjusted series) (000040283486) Real GDP SCA QoQ% annualized",
+            date: dateString
+        }
+
         olog { data }    
-
-        return
-
     catch err then log err
     return
 

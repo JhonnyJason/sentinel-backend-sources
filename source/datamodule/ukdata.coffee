@@ -22,11 +22,29 @@ months = [
     "DEC",
 ]
 
+monthsShortsToName = {
+    "JAN": "January",
+    "FEB": "February",
+    "MAR": "March",
+    "APR": "April",
+    "MAY": "May",
+    "JUN": "June",
+    "JUL": "July",
+    "AUG": "August",
+    "SEP": "September",
+    "OCT": "October",
+    "NOV": "November",
+    "DEC": "December",
+}
+
 ############################################################
 data = { 
     hicp: NaN,
+    hicpMeta: {}
     mrr: NaN,
+    mrrMeta: {}
     gdpg: NaN 
+    gdpgMeta: {}
 }
 
 ############################################################
@@ -74,10 +92,16 @@ requestMRR = ->
         parts = parts[1].split("</p>")
         mrr = parseFloat(parts[0])
         # log mrr
+        mrrDate = new Date() # TODO parse for latest release Date
 
         data.mrr = "#{mrr.toFixed(2)}%"
-        olog data
+        data.mrrMeta = {
+            source: '<a href="https://www.bankofengland.co.uk">Bank of England</a>',
+            dataSet: "Bank Rate",
+            date: mrrDate # DATE
+        }
 
+        olog data            
     catch err then log err
     return
 
@@ -124,12 +148,21 @@ requestHICP = ->
         olog keysToData
         hicpBefore = keysToData[yearBeforeKey]
         hicpNow = keysToData[latestKey]
-        
+
+        log latestKey
+        ts = latestKey.split(" ")
+        dateString = "#{monthsShortsToName[ts[1]]} #{ts[0]}"
+
         olog {hicpBefore, hicpNow}
 
         hicp = (100.0 * hicpNow / hicpBefore) - 100
         data.hicp = "#{hicp.toFixed(2)}%"
-        
+        data.hicpMeta = {
+            source: '<a href="https://www.ons.gov.uk/" target="_blank">Office for National Statistics</a>',
+            dataSet: "CPI INDEX 00: ALL ITEMS (d7bt)",
+            date: dateString
+        }
+
         olog {data}
     catch err then log err
     return
@@ -162,17 +195,27 @@ requestGDPG = ->
         latestGDP = 0
         gdpBefore = 0
         for line in csvLines
-            ts = line.split(",")
-            if isRelevant(ts[0])
-                log "#{ts[0]} was relevant!" 
+            tks = line.split(",")
+            if isRelevant(tks[0])
+                log "#{tks[0]} was relevant!" 
                 gdpBefore = latestGDP
-                latestGDP = parseFloat(ts[1].trim().replaceAll("\"", ""))
-                
+                latestGDP = parseFloat(tks[1].trim().replaceAll("\"", ""))
+                latestDate = tks[0].replaceAll("\"", "")
+
+        ts = latestDate.split(" ")
+        dateString = "#{ts[1]} #{ts[0]}"
+
 
         gdpgQ = (100.00 * latestGDP / gdpBefore) - 100
         gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
 
         data.gdpg = "#{gdpgA.toFixed(2)}%"
+        data.gdpgMeta = {
+            source: '<a href="https://www.ons.gov.uk/" target="_blank">Office for National Statistics</a>',
+            dataSet: "GDP (abmi/pn2) Real GDP SA QoQ% annualized",
+            date: dateString
+        }
+
         olog { gdpgQ, gdpgA, data }    
         
     catch err then log err

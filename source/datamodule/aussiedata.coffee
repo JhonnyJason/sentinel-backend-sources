@@ -8,10 +8,29 @@ import { createLogFunctions } from "thingy-debug"
 import * as cfg from "./configmodule.js"
 
 ############################################################
+monthToName = {
+    "01": "January"
+    "02": "February"
+    "03": "March"
+    "04": "April"
+    "05": "May"
+    "06": "June"
+    "07": "July"
+    "08": "August"
+    "09": "September"
+    "10": "October"
+    "11": "November"
+    "12": "December"
+}
+
+############################################################
 data = { 
     hicp: NaN,
+    hicpMeta: {}
     mrr: NaN,
+    mrrMeta: {}
     gdpg: NaN 
+    gdpgMeta: {}
 }
 
 ############################################################
@@ -86,11 +105,21 @@ requestMRR = ->
         els = csvLines[i].split(",")
         while els[0] != ""
             latestRate = parseFloat(els[2])
-            olog { latestRate }
+            latestDate = els[0]
+            mrrDate = new Date()
             i++
             els = csvLines[i].split(",")
 
+        # olog { la1testRate, latestDate }
+        mrrDate = new Date(latestDate)
+
         data.mrr = "#{latestRate.toFixed(2)}%"
+        data.mrrMeta = {
+            source: '<a href="https://www.rba.gov.au/">RBA</a>',
+            dataSet: "Cash Rate Target",
+            date: mrrDate # DATE
+        }
+
         olog data
     catch err then log err
     return
@@ -112,10 +141,18 @@ requestHICP = ->
         # olog hicpData
         latestDataPoint = excractLatestYoYHICP(hicpData)
         # olog latestDataPoint
+
+        ts = latestDataPoint.latestPeriod.split("-")
+        dateString = "#{monthToName[ts[1]]} #{ts[0]}"
         
         hicp = parseFloat(latestDataPoint.latestValue)
-        data.hicp = "#{hicp.toFixed(2)}%"
-        
+        data.hicp = "#{hicp.toFixed(2)}%"                
+        data.hicpMeta = {
+            source: '<a href="https://www.abs.gov.au/" target="_blank">Australian Bureau of Statistics</a>',
+            dataSet: "Monthly CPI Indicator (CPI_M_H)",
+            date: dateString
+        }
+
         olog {data}
     catch err then log err
     return
@@ -137,12 +174,19 @@ requestGDPG = ->
         gdpData = await response.json()
         # olog hicpData
         latestDataPoint = excractLatestQoQGDPG(gdpData)
-        # olog latestDataPoint
-
+        olog latestDataPoint
+        ts = latestDataPoint.latestPeriod.split("-")
+        dateString = "#{ts[1]} #{ts[0]}"
         gdpgQ = parseFloat(latestDataPoint.latestValue)
         gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
 
         data.gdpg = "#{gdpgA.toFixed(2)}%"
+        data.gdpgMeta = {
+            source: '<a href="https://www.abs.gov.au/" target="_blank">Australian Bureau of Statistics</a>',
+            dataSet: "GDP (GDPE_H) Real GDP SA QoQ% annualized",
+            date: dateString
+        }
+
         olog { gdpgQ, gdpgA, data }    
         
     catch err then log err
