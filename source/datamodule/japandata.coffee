@@ -233,7 +233,7 @@ requestGDPG = ->
 
         data.gdpgMeta = {
             source: '<a href="https://www.e-stat.go.jp/en" target="_blank">E-Stat Japan</a>',
-            dataSet: "Real Gross Domestic Product (seasonally adjusted series) (000040283486) Real GDP SCA QoQ% annualized",
+            dataSet: "Real Gross Domestic Product(000040283486) Real GDP SA QoQ% annualized",
             date: dateString
         }
 

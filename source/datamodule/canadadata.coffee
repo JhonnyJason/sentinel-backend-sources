@@ -197,7 +197,7 @@ requestGDPG = ->
         data.gdpg = "#{gdpgA.toFixed(2)}%"
         data.gdpgMeta = {
             source: '<a href="https://www.statcan.gc.ca/en/start" target="_blank">Statistics Canada</a>',
-            dataSet: "Gross domestic product, expenditure-based, Canada, quarterly (36-10-0104-01/1.1.1.30.0.0.0.0.0.0) Real GDP SA QoQ% annualized",
+            dataSet: "Gross domestic product (36-10-0104-01/1.1.1.30.0.0.0.0.0.0) Real GDP SA QoQ% annualized",
             date: dateString
         }
 
