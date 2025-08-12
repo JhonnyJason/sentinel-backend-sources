@@ -105,12 +105,8 @@ requestMRR = ->
         fetchOptions = {
             headers: { "User-Agent": userAgent }
         }
-
+        olog fetchOptions
         response = await fetch(url, fetchOptions)
-        # textResponse = await response.text()
-        # log textResponse
-        # return
-
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
         # log sheets.SheetNames
@@ -152,7 +148,7 @@ requestHICP = ->
         fetchOptions = {
             headers: { "User-Agent": userAgent }
         }
-
+        olog fetchOptions
         response = await fetch(url, fetchOptions)
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
@@ -198,7 +194,7 @@ requestGDPG = ->
         fetchOptions = {
             headers: { "User-Agent": userAgent }
         }
-
+        olog fetchOptions
         response = await fetch(url, fetchOptions)
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
