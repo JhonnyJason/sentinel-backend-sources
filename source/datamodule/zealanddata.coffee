@@ -128,7 +128,7 @@ requestMRR = ->
         mrr = parseFloat(dataSheet[dataCell].v)
 
         data.mrr = "#{mrr.toFixed(2)}%"
-        data.gdpgMeta = {
+        data.mrrMeta = {
             source: '<a href="https://www.rbnz.govt.nz/" target="_blank">Reserve Bank of New Zealand</a>',
             dataSet: "Official Cash Rate (B2/INM.DP1.N)",
             date: mrrDate
