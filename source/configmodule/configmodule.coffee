@@ -53,7 +53,7 @@ export statisticsDataRequestHeartbeatMS = 3600000 #1h
 # export testRun = "aussieHICP"
 # export testRun = "aussieGDPG"
 
-export testRun = "zealandMRR"
+# export testRun = "zealandMRR"
 # export testRun = "zealandHICP"
 # export testRun = "zealandGDPG"
 
