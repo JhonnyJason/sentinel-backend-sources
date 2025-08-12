@@ -65,8 +65,10 @@ export initialize = ->
     heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
     heartbeat()
+    
     if cfg.testRun? then userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
     else userAgent = cfg.rbnzUserAgent
+    
     return
 
 # https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily.xlsx # interest rates # column 0: daily dates, column 1: OCR
@@ -100,10 +102,10 @@ requestMRR = ->
         }
 
         response = await fetch(url, fetchOptions)
-        textResponse = await response.text()
-        log textResponse
-        return
-        
+        # textResponse = await response.text()
+        # log textResponse
+        # return
+
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
         # log sheets.SheetNames
@@ -157,7 +159,9 @@ requestHICP = ->
         id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("D5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
+        log "before decode_range"
         range = xlsx.utils.decode_range(dataSheet)
+        log "after decode_range"
         bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
         dateCell = "A#{bottomRow}"
         dataCell = "D#{bottomRow}"
