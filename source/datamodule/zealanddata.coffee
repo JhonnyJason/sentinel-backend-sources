@@ -118,7 +118,7 @@ requestMRR = ->
         id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("B5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
-        range = xlsx.utils.decode_range(dataSheet)
+        range = xlsx.utils.decode_range(dataSheet["!ref"])
         bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
         dateCell = "A#{bottomRow}"
         dataCell = "B#{bottomRow}"
@@ -160,7 +160,7 @@ requestHICP = ->
         if id != dataId then throw new Error("D5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
         log "before decode_range"
-        range = xlsx.utils.decode_range(dataSheet)
+        range = xlsx.utils.decode_range(dataSheet["!ref"])
         log "after decode_range"
         bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
         dateCell = "A#{bottomRow}"
@@ -205,7 +205,7 @@ requestGDPG = ->
         id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("K5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
-        range = xlsx.utils.decode_range(dataSheet)
+        range = xlsx.utils.decode_range(dataSheet["!ref"])
         bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
         dateCell = "A#{bottomRow}"
         dataCellQBefore = "K#{bottomRow - 1}"
