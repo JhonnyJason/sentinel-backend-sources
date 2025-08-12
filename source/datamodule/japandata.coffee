@@ -183,7 +183,7 @@ requestHICP = ->
         data.hicp = "#{hicp.toFixed(2)}%"
         data.hicpMeta = {
             source: '<a href="https://www.e-stat.go.jp/en" target="_blank">E-Stat Japan</a>',
-            dataSet: "Consumer Price Index / 2020-Base Consumer Price Index (0003427113)",
+            dataSet: "2020-Base Consumer Price Index (0003427113)",
             date: dateString
         }
 

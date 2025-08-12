@@ -4,27 +4,43 @@ import { createLogFunctions } from "thingy-debug"
 {log, olog} = createLogFunctions("zealanddata")
 #endregion
 
-# ############################################################
-# import *  as yauzl from "yauzl"
 
-# ############################################################
-# promisify = (api) ->
-#     return (...args) -> 
-#         return new Promise (resolve, reject) ->
-#             api(
-#                 ...args, 
-#                 (err, response) ->
-#                     if err then  return reject(err);
-#                     resolve(response);
-#             )
-        
-# ############################################################
-# yauzlFromBuffer = promisify(yauzl.fromBuffer)
-
+############################################################
 import * as xlsx from "xlsx"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+
+############################################################
+numToMonth = {
+    "0": "January",
+    "1": "February",
+    "2": "March",
+    "3": "April",
+    "4": "May",
+    "5": "June", 
+    "6": "July",
+    "7": "August",
+    "8": "September",
+    "9": "October",
+    "10": "November",
+    "11": "December"
+}
+
+numToQuarter = {
+    "0": "Q1",
+    "1": "Q1",
+    "2": "Q1",
+    "3": "Q2",
+    "4": "Q2",
+    "5": "Q2", 
+    "6": "Q3",
+    "7": "Q3",
+    "8": "Q3",
+    "9": "Q4",
+    "10": "Q4",
+    "11": "Q4"
+}
 
 ############################################################
 data = { 
@@ -37,6 +53,9 @@ data = {
 }
 
 ############################################################
+userAgent = "me"
+
+############################################################
 export initialize = ->
     log "initialize"
     data.hicp = "i.NZ"
@@ -46,6 +65,8 @@ export initialize = ->
     heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
     heartbeat()
+    if cfg.testRun? then userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+    else userAgent = cfg.rbnzUserAgent
     return
 
 # https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily.xlsx # interest rates # column 0: daily dates, column 1: OCR
@@ -73,21 +94,40 @@ heartbeat = ->
 requestMRR = ->
     log "requestMRR"
     try
-        # response = await fetch("https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp")
-        # htmlResponse = await response.text()
-        
-        # parts = htmlResponse.split('<div class="featured-stat">')
-        
-        # if parts.length != 2 then throw new Error("Unexpected HTML structure!")
-        # parts = parts[1].split('<p class="stat-figure">')
-        # if parts.length != 2 then throw new Error("Unexpected HTML structure!")
+        url = "https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily.xlsx"
+        fetchOptions = {
+            headers: { "User-Agent": userAgent }
+        }
 
-        # parts = parts[1].split("</p>")
-        # mrr = parseFloat(parts[0])
-        # # log mrr
+        response = await fetch(url, fetchOptions)
+        xlsxBuffer = await response.arrayBuffer()
+        sheets = xlsx.read(xlsxBuffer)
+        # log sheets.SheetNames
+        dataSheet = sheets.Sheets["data"]
 
-        # data.mrr = "#{mrr.toFixed(2)}%"
-        # olog data
+        if!dataSheet? then throw new Error("Sheet 'data' not found in document.")
+
+        dataId = "INM.DP1.N"
+        dataIdCell = "B5"
+        id = datSheet[dataIdCell].v
+        if id != dataId then throw new Error("B5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
+
+        range = xlsx.utils.decode_range(dataSheet)
+        bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
+        dateCell = "A#{bottomRow}"
+        dataCell = "B#{bottomRow}"
+
+        mrrDate = new Date(dataSheet[dateCell].v) # e.g.07/25/2025 
+        mrr = parseFloat(dataSheet[dataCell].v)
+
+        data.mrr = "#{mrr.toFixed(2)}%"
+        data.gdpgMeta = {
+            source: '<a href="https://www.rbnz.govt.nz/" target="_blank">Reserve Bank of New Zealand</a>',
+            dataSet: "Official Cash Rate (B2/INM.DP1.N)",
+            date: mrrDate
+        }
+
+        olog data
 
     catch err then log err
     return
@@ -97,60 +137,40 @@ requestHICP = ->
     log "requestHICP"
     try
         url = "https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/m/m1/hm1.xlsx"
-        response = await fetch(url)
+        fetchOptions = {
+            headers: { "User-Agent": userAgent }
+        }
+        response = await fetch(url, fetchOptions)
         xlsxBuffer = await response.arrayBuffer()
-        log "before reading xlsx"
         sheets = xlsx.read(xlsxBuffer)
-        log "after reading xlsx"
-        log sheets.SheetNames
-        # xlsxBytes = await response.bytes()
-        # xlsxBuffer = Buffer.from(xlsxBytes)
-        # zipFile = await yauzlFromBuffer(xlsxBuffer, {lazyEntries: true})
-        # log "entries: #{zipfile.entryCount}"
-        return
-        # log csvResponse
+        # log sheets.SheetNames
+        dataSheet = sheets.Sheets["data"]
 
-        date = new Date()
-        thisYear = "#{date.getFullYear()}"
-        lastYear = "#{date.getFullYear() - 1}"
-        yearBefore = "#{date.getFullYear() - 2}"
-        
-        keysToData = {}
-        for m in months
-            key = "#{thisYear} #{m}"
-            keysToData[key] = true
-            key = "#{lastYear} #{m}"
-            keysToData[key] = true
-            key = "#{yearBefore} #{m}"
-            keysToData[key] = true
-        olog keysToData
+        if!dataSheet? then throw new Error("Sheet 'data' not found in document.")
 
-        latestKey = null
-        csvLines = csvResponse.split("\n")
-        for line in csvLines
-            cells = line.split(",")
-            key = cells[0].trim().replaceAll("\"", "")
-            # log key
+        dataId = "CPI.Q.C.iay"
+        dataIdCell = "D5"
+        id = datSheet[dataIdCell].v
+        if id != dataId then throw new Error("D5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
-            if keysToData[key]
-                value = parseFloat(cells[1].trim().replaceAll("\"", ""))
-                keysToData[key] = value
-                latestKey = key
+        range = xlsx.utils.decode_range(dataSheet)
+        bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
+        dateCell = "A#{bottomRow}"
+        dataCell = "D#{bottomRow}"
 
-        ts = latestKey.split(" ")
-        latestKeyYear = parseInt(ts[0])
-        yearBeforeKey = "#{latestKeyYear - 1} #{ts[1]}"
+        dt = new Date(dataSheet[dateCell].v) # 06/30/2025
+        dateString = "#{numToMonth[dt.getMonth()]} #{dt.getFullYear()}" # June 2025
 
-        olog keysToData
-        hicpBefore = keysToData[yearBeforeKey]
-        hicpNow = keysToData[latestKey]
-        
-        olog {hicpBefore, hicpNow}
+        hicp = parseFloat(dataSheet[dataCell].v)
 
-        hicp = (100.0 * hicpNow / hicpBefore) - 100
-        data.hicp = "#{hicp.toFixed(2)}%"
-        
-        olog {data}
+        data.hicp = "#{gdpgA.toFixed(2)}%"
+        data.gdpgMeta = {
+            source: '<a href="https://www.rbnz.govt.nz/" target="_blank">Reserve Bank of New Zealand</a>',
+            dataSet: "Consumper Price Index (M1/CPI.Q.C.iay) quarterly data - annual rate of change",
+            date: dateString
+        }
+
+        olog { latestGDP, gdpBefore, gdpgQ, gdpgA, data }
     catch err then log err
     return
 
@@ -159,42 +179,48 @@ requestGDPG = ->
     ## Here we want Annualized QoQ growth of Real GDP 
     #  -> Adjusted for inflation, Seasonality and Calendar 
     try
-        # url = "https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2"
-        # response = await fetch(url)
-        # csvData = await response.text()        
-        # csvLines = csvData.split("\n")
-        # olog csvLines
+        url = "https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/m/m5/hm5.xlsx"
+        fetchOptions = {
+            headers: { "User-Agent": userAgent }
+        }
+        response = await fetch(url, fetchOptions)
+        xlsxBuffer = await response.arrayBuffer()
+        log "before reading xlsx"
+        sheets = xlsx.read(xlsxBuffer)
+        log "after reading xlsx"
+        log sheets.SheetNames
+        dataSheet = sheets.Sheets["data"]
 
-        # date = new Date()
-        # thisYear = "#{date.getFullYear()}"
-        # lastYear = "#{date.getFullYear() - 1}"
+        if!dataSheet? then throw new Error("Sheet 'data' not found in document.")
 
-        # isRelevant = (label) ->
-        #     # log "isRelevant"
-        #     label = label.trim().replaceAll("\"", "")
-        #     ts = label.split(" ")
-        #     # olog ts
-        #     return false unless ts[0] == thisYear || ts[0] == lastYear
-        #     return true if ts[1] == "Q1" || ts[1] == "Q2" || ts[1] == "Q3" || ts[1] == "Q4"
-        #     return false
+        dataId = "GDE.Q.EY.RS"
+        dataIdCell = "K5"
+        id = datSheet[dataIdCell].v
+        if id != dataId then throw new Error("K5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
-        # # Here we assume that the last 2 relevant entries are the latest two consecutive Quarters
-        # latestGDP = 0
-        # gdpBefore = 0
-        # for line in csvLines
-        #     ts = line.split(",")
-        #     if isRelevant(ts[0])
-        #         log "#{ts[0]} was relevant!" 
-        #         gdpBefore = latestGDP
-        #         latestGDP = parseFloat(ts[1].trim().replaceAll("\"", ""))
-                
+        range = xlsx.utils.decode_range(dataSheet)
+        bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
+        dateCell = "A#{bottomRow}"
+        dataCellQBefore = "K#{bottomRow - 1}"
+        dataCellQLatest = "K#{bottomRow}"
 
-        # gdpgQ = (100.00 * latestGDP / gdpBefore) - 100
-        # gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
-
-        # data.gdpg = "#{gdpgA.toFixed(2)}%"
-        # olog { gdpgQ, gdpgA, data }    
+        dt = new Date(dataSheet[dateCell].v) # 06/30/2025
+        dateString = "#{numToQuarter[dt.getMonth()]} #{dt.getFullYear()}" # Q2 2025
         
+        latestGDP = parseFloat(dataSheet[dataCellQLatest].v)
+        gdpBefore = parseFloat(dataSheet[dataCellQBefore].v)
+
+        gdpgQ = (100.00 * latestGDP / gdpBefore ) - 100.00
+        gdpgA = 100.00 * (Math.pow( (1 + gdpgQ / 100), 4 ) - 1)
+
+        data.gdpg = "#{gdpgA.toFixed(2)}%"
+        data.gdpgMeta = {
+            source: '<a href="https://www.rbnz.govt.nz/" target="_blank">Reserve Bank of New Zealand</a>',
+            dataSet: "GDP (M5/GDE.Q.EY.RS) Real GDP SCA QoQ% annualized",
+            date: dateString
+        }
+
+        olog { latestGDP, gdpBefore, gdpgQ, gdpgA, data }
     catch err then log err
     return
 

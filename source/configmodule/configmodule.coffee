@@ -21,6 +21,8 @@ export beaAPIKey = localCfg.beaAPIKey || ""
 export fredAPIKey = localCfg.fredAPIKey || ""
 export estatAPIKey = localCfg.estatAPIKey || ""
 export absAPIKey = localCfg.absAPIKey || ""
+# export nzAPIKey = localCfg.nzAPIKey || "" # New Zealand new Data sharing Portal - does not have the right data available...
+export rbnzUserAgent = localCfg.rbnzUserAgent || ""
 export passphrase = localCfg.passphrase || "I shall pass!"
 
 ############################################################
@@ -51,7 +53,7 @@ export statisticsDataRequestHeartbeatMS = 3600000 #1h
 # export testRun = "aussieHICP"
 # export testRun = "aussieGDPG"
 
-# export testRun = "zealandMRR"
+export testRun = "zealandMRR"
 # export testRun = "zealandHICP"
 # export testRun = "zealandGDPG"
 
