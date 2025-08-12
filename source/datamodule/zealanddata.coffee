@@ -103,9 +103,9 @@ requestMRR = ->
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
         # log sheets.SheetNames
-        dataSheet = sheets.Sheets["data"]
+        dataSheet = sheets.Sheets["Data"]
 
-        if!dataSheet? then throw new Error("Sheet 'data' not found in document.")
+        if!dataSheet? then throw new Error("Sheet 'Data' not found in document.")
 
         dataId = "INM.DP1.N"
         dataIdCell = "B5"
@@ -144,7 +144,7 @@ requestHICP = ->
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
         # log sheets.SheetNames
-        dataSheet = sheets.Sheets["data"]
+        dataSheet = sheets.Sheets["Data"]
 
         if!dataSheet? then throw new Error("Sheet 'data' not found in document.")
 
@@ -176,6 +176,7 @@ requestHICP = ->
 
 ############################################################
 requestGDPG = ->
+    log "requestGDPG"
     ## Here we want Annualized QoQ growth of Real GDP 
     #  -> Adjusted for inflation, Seasonality and Calendar 
     try
@@ -185,11 +186,9 @@ requestGDPG = ->
         }
         response = await fetch(url, fetchOptions)
         xlsxBuffer = await response.arrayBuffer()
-        log "before reading xlsx"
         sheets = xlsx.read(xlsxBuffer)
-        log "after reading xlsx"
-        log sheets.SheetNames
-        dataSheet = sheets.Sheets["data"]
+        # log sheets.SheetNames
+        dataSheet = sheets.Sheets["Data"]
 
         if!dataSheet? then throw new Error("Sheet 'data' not found in document.")
 
