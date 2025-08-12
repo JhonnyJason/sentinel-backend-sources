@@ -10,7 +10,7 @@ modulesToDebug = {
     # canadadata: true
     # aussiedata: true
     # ukdata: true
-    zealanddata: true
+    # zealanddata: true
     # scimodule: true
     # startupmodule: true
     # wsimodule: true
