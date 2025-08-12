@@ -152,6 +152,7 @@ requestHICP = ->
         fetchOptions = {
             headers: { "User-Agent": userAgent }
         }
+
         response = await fetch(url, fetchOptions)
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
@@ -177,7 +178,7 @@ requestHICP = ->
         hicp = parseFloat(dataSheet[dataCell].v)
 
         data.hicp = "#{hicp.toFixed(2)}%"
-        data.gdpgMeta = {
+        data.hicpMeta = {
             source: '<a href="https://www.rbnz.govt.nz/" target="_blank">Reserve Bank of New Zealand</a>',
             dataSet: "Consumper Price Index (M1/CPI.Q.C.iay) quarterly data - annual rate of change",
             date: dateString
@@ -197,6 +198,7 @@ requestGDPG = ->
         fetchOptions = {
             headers: { "User-Agent": userAgent }
         }
+
         response = await fetch(url, fetchOptions)
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
