@@ -77,6 +77,11 @@ export initialize = ->
 
 # https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/m/m5/hm5.xlsx # gdp # coumn 0: months, column2: real SA GDP LVL, column 3: Real SA GDP QoQ%
 
+############################################################
+excelToJSDate = (d) ->
+    d = parseInt(d)
+    return new Date(Math.round((d - 25569) * 86400 * 1000));
+
 
 ############################################################
 heartbeat = ->
@@ -123,7 +128,8 @@ requestMRR = ->
         dateCell = "A#{bottomRow}"
         dataCell = "B#{bottomRow}"
 
-        mrrDate = new Date(dataSheet[dateCell].v) # e.g.07/25/2025 
+        dateRaw = dataSheet[dateCell].v
+        mrrDate = excelToJSDate(dateRaw) 
         mrr = parseFloat(dataSheet[dataCell].v)
 
         data.mrr = "#{mrr.toFixed(2)}%"
@@ -165,9 +171,7 @@ requestHICP = ->
         dataCell = "D#{bottomRow}"
 
         dateRaw = dataSheet[dateCell].v
-        log dateRaw
-        dt = new Date(dateRaw) # 06/30/2025
-        log dt
+        dt = excelToJSDate(dateRaw)
         dateString = "#{numToMonth[dt.getMonth()]} #{dt.getFullYear()}" # June 2025
 
         hicp = parseFloat(dataSheet[dataCell].v)
@@ -213,9 +217,7 @@ requestGDPG = ->
         dataCellQLatest = "K#{bottomRow}"
 
         dateRaw = dataSheet[dateCell].v
-        log dateRaw
-        dt = new Date(dateRaw) # 06/30/2025
-        log dt
+        dt = excelToJSDate(dateRaw)
         dateString = "#{numToQuarter[dt.getMonth()]} #{dt.getFullYear()}" # Q2 2025
         
         latestGDP = parseFloat(dataSheet[dataCellQLatest].v)
