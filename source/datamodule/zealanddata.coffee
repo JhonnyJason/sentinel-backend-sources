@@ -62,13 +62,12 @@ export initialize = ->
     data.mrr = "r.NZ"
     data.gdpg = "g.NZ"
 
-    heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
-    setInterval(heartbeat, heartbeatMS)
-    heartbeat()
-    
     if cfg.testRun? then userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
     else userAgent = cfg.rbnzUserAgent
-    
+
+    heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
+    setInterval(heartbeat, heartbeatMS)
+    heartbeat()        
     return
 
 # https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily.xlsx # interest rates # column 0: daily dates, column 1: OCR
