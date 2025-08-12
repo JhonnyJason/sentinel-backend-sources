@@ -159,26 +159,27 @@ requestHICP = ->
         id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("D5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
-        log "before decode_range"
         range = xlsx.utils.decode_range(dataSheet["!ref"])
-        log "after decode_range"
         bottomRow = range.e.r + 1 # row 1 is at index 0 etc.
         dateCell = "A#{bottomRow}"
         dataCell = "D#{bottomRow}"
 
-        dt = new Date(dataSheet[dateCell].v) # 06/30/2025
+        dateRaw = dataSheet[dateCell].v
+        log dateRaw
+        dt = new Date(dateRaw) # 06/30/2025
+        log dt
         dateString = "#{numToMonth[dt.getMonth()]} #{dt.getFullYear()}" # June 2025
 
         hicp = parseFloat(dataSheet[dataCell].v)
 
-        data.hicp = "#{gdpgA.toFixed(2)}%"
+        data.hicp = "#{hicp.toFixed(2)}%"
         data.gdpgMeta = {
             source: '<a href="https://www.rbnz.govt.nz/" target="_blank">Reserve Bank of New Zealand</a>',
             dataSet: "Consumper Price Index (M1/CPI.Q.C.iay) quarterly data - annual rate of change",
             date: dateString
         }
 
-        olog { latestGDP, gdpBefore, gdpgQ, gdpgA, data }
+        olog data
     catch err then log err
     return
 
@@ -211,7 +212,10 @@ requestGDPG = ->
         dataCellQBefore = "K#{bottomRow - 1}"
         dataCellQLatest = "K#{bottomRow}"
 
-        dt = new Date(dataSheet[dateCell].v) # 06/30/2025
+        dateRaw = dataSheet[dateCell].v
+        log dateRaw
+        dt = new Date(dateRaw) # 06/30/2025
+        log dt
         dateString = "#{numToQuarter[dt.getMonth()]} #{dt.getFullYear()}" # Q2 2025
         
         latestGDP = parseFloat(dataSheet[dataCellQLatest].v)
