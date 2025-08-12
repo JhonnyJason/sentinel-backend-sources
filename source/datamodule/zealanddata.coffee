@@ -100,6 +100,10 @@ requestMRR = ->
         }
 
         response = await fetch(url, fetchOptions)
+        textResponse = await response.text()
+        log textResponse
+        return
+        
         xlsxBuffer = await response.arrayBuffer()
         sheets = xlsx.read(xlsxBuffer)
         # log sheets.SheetNames
@@ -109,7 +113,7 @@ requestMRR = ->
 
         dataId = "INM.DP1.N"
         dataIdCell = "B5"
-        id = datSheet[dataIdCell].v
+        id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("B5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
         range = xlsx.utils.decode_range(dataSheet)
@@ -150,7 +154,7 @@ requestHICP = ->
 
         dataId = "CPI.Q.C.iay"
         dataIdCell = "D5"
-        id = datSheet[dataIdCell].v
+        id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("D5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
         range = xlsx.utils.decode_range(dataSheet)
@@ -194,7 +198,7 @@ requestGDPG = ->
 
         dataId = "GDE.Q.EY.RS"
         dataIdCell = "K5"
-        id = datSheet[dataIdCell].v
+        id = dataSheet[dataIdCell].v
         if id != dataId then throw new Error("K5 did not carry right dataId (found Id: #{id} | expected: #{dataId})!")
 
         range = xlsx.utils.decode_range(dataSheet)
