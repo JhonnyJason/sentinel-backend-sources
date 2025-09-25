@@ -15,6 +15,7 @@ data = {
     mrrMeta: {}
     gdpg: NaN 
     gdpgMeta: {}
+    cotData: {}
 }
 
 ############################################################
@@ -33,10 +34,7 @@ export initialize = ->
     heartbeat()
     return
 
-
 ############################################################
-export getData = -> data
-
 heartbeat = ->
     log "heartbeat"
     if cfg.testRun?
@@ -187,4 +185,15 @@ requestGDPG = ->
         olog { latestGDP, gdpBefore, data }    
 
     catch err then log err
+    return
+
+############################################################
+export getData = -> data
+
+############################################################
+export setCOTData = (cotData) ->
+    log "setCOTData"
+    data.cotIndex36 = cotData.n36Index
+    data.cotIndex6 = cotData.n6Index
+    olog data
     return

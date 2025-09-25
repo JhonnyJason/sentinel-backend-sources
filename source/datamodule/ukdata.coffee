@@ -38,13 +38,14 @@ monthsShortsToName = {
 }
 
 ############################################################
-data = { 
+data = {
     hicp: NaN,
     hicpMeta: {}
     mrr: NaN,
     mrrMeta: {}
     gdpg: NaN 
     gdpgMeta: {}
+    cotData: {}
 }
 
 ############################################################
@@ -80,9 +81,16 @@ heartbeat = ->
 requestMRR = ->
     log "requestMRR"
     try
+
         response = await fetch("https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp")
         htmlResponse = await response.text()
-        
+
+        #Area of Interest:
+        # <div class="featured-stat">
+        #     <p class="stat-intro">Current official Bank Rate</p>
+        #     <p class="stat-figure">4%</p>
+        # </div>
+
         parts = htmlResponse.split('<div class="featured-stat">')
         
         if parts.length != 2 then throw new Error("Unexpected HTML structure!")
@@ -223,3 +231,11 @@ requestGDPG = ->
 
 ############################################################
 export getData = -> data
+
+############################################################
+export setCOTData = (cotData) ->
+    log "setCOTData"
+    data.cotIndex36 = cotData.n36Index
+    data.cotIndex6 = cotData.n6Index
+    olog data
+    return

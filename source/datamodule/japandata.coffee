@@ -24,13 +24,14 @@ monthToName = {
 }
 
 ############################################################
-data = { 
+data = {
     hicp: NaN,
     hicpMeta: {}
     mrr: NaN,
     mrrMeta: {}
     gdpg: NaN 
     gdpgMeta: {}
+    cotData: {}
 }
 
 ############################################################
@@ -243,3 +244,11 @@ requestGDPG = ->
 
 ############################################################
 export getData = -> data
+
+############################################################
+export setCOTData = (cotData) ->
+    log "setCOTData"
+    data.cotIndex36 = cotData.n36Index
+    data.cotIndex6 = cotData.n6Index
+    olog data
+    return

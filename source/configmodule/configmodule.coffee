@@ -29,6 +29,9 @@ export passphrase = localCfg.passphrase || "I shall pass!"
 export statisticsDataRequestHeartbeatMS = 3600000 #1h
 
 ############################################################
+export cotDataRequestHeartbeatMS = 86400000 #24h
+
+############################################################
 # export testRun = "euroMRR"
 # export testRun = "euroHICP"
 # export testRun = "euroGDPG"
@@ -60,3 +63,5 @@ export statisticsDataRequestHeartbeatMS = 3600000 #1h
 # export testRun = "ukMRR"
 # export testRun = "ukHICP"
 # export testRun = "ukGDPG"
+
+# export testRun = "cotData"

@@ -3,6 +3,7 @@ import { addModulesToDebug } from "thingy-debug"
 ############################################################
 modulesToDebug = {
 
+    # cotdatamodule: true
     # eurodata: true
     # usdata: true
     # japandata: true

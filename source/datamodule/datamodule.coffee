@@ -31,13 +31,6 @@ export initialize = ->
     return
 
 ############################################################
-export addDataFor = (key, data) ->
-    log "addDataFor"
-    # TODO add specific data for a certain key
-    # ToDo persist 
-    return
-
-############################################################
 export getAllData = -> 
     log "getAllData" 
     ## Todo simply return the finished persistent JSON
