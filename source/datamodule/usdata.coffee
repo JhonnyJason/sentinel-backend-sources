@@ -7,7 +7,7 @@ import { createLogFunctions } from "thingy-debug"
 ############################################################
 import * as cfg from "./configmodule.js"
 
-############################################################
+# ############################################################
 data = {
     hicp: NaN,
     hicpMeta: {}
@@ -15,7 +15,8 @@ data = {
     mrrMeta: {}
     gdpg: NaN 
     gdpgMeta: {}
-    cotData: {}
+    cotIndex36:  NaN
+    cotIndex6:  NaN
 }
 
 ############################################################

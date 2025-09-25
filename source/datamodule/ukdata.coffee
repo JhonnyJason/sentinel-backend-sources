@@ -45,7 +45,8 @@ data = {
     mrrMeta: {}
     gdpg: NaN 
     gdpgMeta: {}
-    cotData: {}
+    cotIndex36:  NaN
+    cotIndex6:  NaN
 }
 
 ############################################################
@@ -60,7 +61,6 @@ export initialize = ->
     heartbeat()
     return
 
-
 ############################################################
 heartbeat = ->
     log "heartbeat"
@@ -74,8 +74,6 @@ heartbeat = ->
         await requestHICP()
         await requestGDPG()
     return
-
-############################################################
 
 ############################################################
 requestMRR = ->

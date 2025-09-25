@@ -50,7 +50,8 @@ data = {
     mrrMeta: {}
     gdpg: NaN 
     gdpgMeta: {}
-    cotData: {}
+    cotIndex36:  NaN
+    cotIndex6:  NaN
 }
 
 ############################################################
