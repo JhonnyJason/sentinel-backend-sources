@@ -367,8 +367,8 @@ getCOTIndexFromDate = (asset, minDate) ->
     log "Total: #{dateKeys.length}\nRelevant: #{relevantDates.length}"
     # log relevantDates
 
-    maxNetValue = 0
-    minNetValue = Infinity
+    maxNetValue = Number.NEGATIVE_INFINITY
+    minNetValue = Number.POSITIVE_INFINITY
 
     for date in relevantDates
         netPos = allData[date][asset]

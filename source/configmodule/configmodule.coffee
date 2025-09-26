@@ -64,4 +64,4 @@ export cotDataRequestHeartbeatMS = 86400000 #24h
 # export testRun = "ukHICP"
 # export testRun = "ukGDPG"
 
-export testRun = "cotData"
+# export testRun = "cotData"
