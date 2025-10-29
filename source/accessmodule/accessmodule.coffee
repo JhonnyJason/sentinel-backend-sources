@@ -38,13 +38,10 @@ export unsetAccess = (authCode) ->
     return unless handle? # already removed
 
     delete authCodeToHandle[authCode]
-
-    allSockets = new Array(...handle.sockets)
-    socket.close() for socket in allSockets
     return
 
 
-export checkSocket = (authCode, socket, load) ->
+export checkSocket = (authCode, socket) ->
     log "checkSocket"
     handle = authCodeToHandle[authCode]
     if !handle? then throw new Error("Invalid AuthCode!")
