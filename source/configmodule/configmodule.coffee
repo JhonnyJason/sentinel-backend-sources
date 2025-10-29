@@ -26,6 +26,9 @@ export rbnzUserAgent = localCfg.rbnzUserAgent || ""
 export passphrase = localCfg.passphrase || "I shall pass!"
 
 ############################################################
+export legalOrigins = ["https://localhost", "https://sentinel-dashboard-dev.dotv.ee"]
+
+############################################################
 export statisticsDataRequestHeartbeatMS = 3600000 #1h
 
 ############################################################
@@ -64,4 +67,6 @@ export cotDataRequestHeartbeatMS = 86400000 #24h
 # export testRun = "ukHICP"
 # export testRun = "ukGDPG"
 
-export testRun = "cotData"
+# export testRun = "cotData"
+
+export testRun = "accounts"

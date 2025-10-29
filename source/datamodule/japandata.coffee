@@ -197,7 +197,11 @@ requestHICP = ->
 requestGDPG = ->
     log "requestGDPG"
     try
-    
+        
+        ## TODO: fix - bug: search for real download Link for the latest file:
+        # use this url: https://www.e-stat.go.jp/en/stat-search/files?page=1&layout=datalist&toukei=00100409&tstat=000001014470&cycle=2&tclass1=000001014471&tclass2=000001018314&stat_infid=000040316216&result_page=1&tclass3val=0
+        # then scrape for the real file dowload Link
+
         url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283486&fileKind=1" # Quarterly Estimates of Real GDP (seasonally adjusted) -> csv file
         response = await fetch(url) 
         gdpCSV = await response.text()
@@ -217,14 +221,12 @@ requestGDPG = ->
         t = relevantLines[relevantLines.length - 1].split(",")
         gdpg = parseFloat(t[1])
 
-        if t[0].startsWith("#{lastYear}/ 1- 3.") 
-            dateString = "Q1 #{lastYear}"
-        if t[0].startsWith("#{thisYear}/ 1- 3.") 
+        if t[0].startsWith("#{thisYear}/ 1- 3.")
             dateString = "Q1 #{thisYear}"
         if t[0].startsWith("/ 4- 6.")
             td = relevantLines[relevantLines.length - 2].split(",")[0]
             dateString = "Q2 #{td.slice(0,4)}"
-        if t[0].startsWith("/ 7- 9.") 
+        if t[0].startsWith("/ 7- 9.")
             td = relevantLines[relevantLines.length - 3].split(",")[0]
             dateString = "Q3 #{td.slice(0,4)}"
         if t[0].startsWith("/ 10- 12.")

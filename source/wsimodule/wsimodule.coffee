@@ -6,6 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as data from "./datamodule.js"
+import * as access from "./accessmodule.js"
 
 ############################################################
 clientIdCount = 0
@@ -22,21 +23,33 @@ class SocketConnection
     onMessage: (evnt) ->
         log "onMessage"
         try
+            progress = 0
+            bytes = null
+            success = false
+            processingStart = performance.now()
+
             message = evnt.data
             log "#{message}"
+            bytes = message.length
 
-            # separate command from potential argument            
-            commandEnd = message.indexOf(" ")
-            if commandEnd < 0 then command = message # no argument
-            else
-                command = message.substring(0, commandEnd)
-                postCommand = message.substring(commandEnd).trim()
+            msgObj = disectMessage(message) # message: command authCode argument
+            olog msgObj
+            progress = 1
 
-            switch command
+            access.checkSocket(msgObj.authCode, @socket)
+            progress = 2
+            
+            switch messageObject.command
                 when "getAllData" then sendAllData(@socket)
-                else throw new Error("unknown command: #{command}")
-
+                else throw new Error("unknown command: #{messageObject.command}")
+            
+            progress = 3
+            success = true
         catch err then log err
+        
+        processingTime = performance.now() - processingStart
+        usage = { success, progress, bytes, processingTime }
+        noteUsage(usage)
         return
 
     onDisconnect: (evnt) ->
@@ -44,6 +57,17 @@ class SocketConnection
         try
             #TODO implment some unsubscribing  
         catch err then log err
+        return
+    
+    noteUsage: (usage) ->
+        log "noteUsage: #{@clientId}"
+        #TODO identify abusive behaviour
+        olog usage
+        return
+
+    close: ->
+        log "closeSocket for: #{@clientId}"
+        @socket.close()
         return
     
 ############################################################
@@ -56,10 +80,31 @@ sendAllData = (socket) ->
     catch err then log err
     return
 
+disectMessage = (message) ->
+    log "disectMessage"
+    tokens = message.split(" ")
+    
+    if tokens.length < 1 then throw new Error("Unexpected message.split result!")
+    
+    command = tokens[0]
+    authCode = ""
+    argument = ""
+
+    if tokens.length >= 2 then authCode = tokens[1]
+
+    if tokens.length == 3 then argument = tokens[2]
+    if tokens.length > 3 then argument = tokens.splice(2).join(" ")
+
+    return {command, authCode, argument}
+
+############################################################
+noteUsage = (usage, socket) ->
+    log "noteUsage"
+    return
 
 ############################################################
 export onConnect = (socket, req) ->
-    olog req.body 
+    olog req.body
     conn = new SocketConnection(socket, "#{clientIdCount}")
     clientIdCount++
     return
