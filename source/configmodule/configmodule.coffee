@@ -3,17 +3,20 @@ import fs from "fs"
 import path from "path"
 
 ############################################################
-import * as sS from "./serverstatemodule.js"
+import { report } from "./bugsnitchmodule.js"
+
+############################################################
+localCfg = Object.create(null)
 
 try
     configPath = path.resolve(process.cwd(), "./.config.json")
     localCfgString = fs.readFileSync(configPath, 'utf8')
     localCfg = JSON.parse(localCfgString)
+    throw new Error("Just testing errorReporting :-)")
 catch err
-    console.error "Local Config File could not be read or parsed!"
-    console.error err
-    sS.setError(err)
-    localCfg = {}
+    msg = "[configmodule]: Local Config File could not be read or parsed!"
+    msg += "\n"+err.message
+    report(msg)
 
 ############################################################
 export blsAPIKey = localCfg.blsAPIKey || ""
@@ -23,9 +26,13 @@ export estatAPIKey = localCfg.estatAPIKey || ""
 export absAPIKey = localCfg.absAPIKey || ""
 # export nzAPIKey = localCfg.nzAPIKey || "" # New Zealand new Data sharing Portal - does not have the right data available...
 export rbnzUserAgent = localCfg.rbnzUserAgent || ""
-export passphrase = localCfg.passphrase || "I shall pass!"
+export telegramToken = localCfg.telegramToken || ""
+export snitchChatId = localCfg.snitchChatId || ""
+
+localCfg = null
 
 ############################################################
+export name = "sentinel-backend"
 export legalOrigins = ["https://localhost", "https://sentinel-dashboard-dev.dotv.ee"]
 
 ############################################################
