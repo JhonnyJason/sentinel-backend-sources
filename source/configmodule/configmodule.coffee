@@ -35,7 +35,12 @@ localCfg = null
 
 ############################################################
 export name = "sentinel-backend"
-export legalOrigins = ["localhost", "localhost:3333", "sentinel-dashboard-dev.dotv.ee"]
+export legalOrigins = [
+    "localhost", 
+    "localhost:3333", 
+    "sentinel-dashboard-dev.dotv.ee",
+    "sentinel-backend.dotv.ee"
+]
 
 ############################################################
 export fallbackAuthCode = "aaaaaaaabbbbbbbbccccccccdddddddd"

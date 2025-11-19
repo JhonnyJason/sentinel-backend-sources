@@ -31,8 +31,8 @@ export isBlocked = (ip, origin) ->
     if !legalOrigins.has(origin)
         log "blocked request with origin: #{origin}"
         blockedIPs.add(ip)
-        console.error("Request failed due to blocked origin!")
-        console.error("Origin: #{origin}, IP:#{ip}")
+        # console.error("Request failed due to blocked origin!")
+        # console.error("Origin: #{origin}, IP:#{ip}")
         return "Illegal Origin!"
     
     log "passed!"
