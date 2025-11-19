@@ -193,7 +193,8 @@ requestMRR = ->
         data.mrr = "#{mrr.toFixed(2)}%"
         data.mrrMeta = {
             source: '<a href="https://www.boj.or.jp/en/">BOJ</a>',
-            dataSet: "Basic Loan Rate (IR01'MADR1Z@D)",
+            # dataSet: "Basic Loan Rate (IR01'MADR1Z@D)",
+            dataSet:  "Uncollateralized Overnight Callrate - Average/Daily (FM01'STRDCLUCON)"
             date: mrrDate # DATE
         }
 
