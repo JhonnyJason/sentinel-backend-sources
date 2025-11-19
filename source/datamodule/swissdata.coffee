@@ -6,6 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+import * as bs from "./bugsnitch.js"
 
 ############################################################
 monthToName = {
@@ -91,7 +92,7 @@ requestMRR = ->
 
         olog data
 
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -136,7 +137,7 @@ requestHICP = ->
 
         olog {data}
 
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -193,7 +194,7 @@ requestGDPG = ->
 
         olog { latestGDP, gdpBefore, data }    
         
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 
@@ -201,8 +202,8 @@ requestGDPG = ->
 export getData = -> data
 
 ############################################################
-export setCOTData = (cotData) ->
-    log "setCOTData"
+export cotDataSet = (cotData) ->
+    log "cotDataSet"
     data.cotIndex36 = cotData.n36Index
     data.cotIndex6 = cotData.n6Index
     olog data

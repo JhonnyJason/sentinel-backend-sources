@@ -10,6 +10,7 @@ import * as xlsx from "xlsx"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+import * as bs from "./bugsnitch.js"
 
 ############################################################
 numToMonth = {
@@ -102,7 +103,7 @@ heartbeat = ->
 requestMRR = ->
     log "requestMRR"
     try
-        url = "https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily.xlsx"
+        url = "https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily-close.xlsx"
         fetchOptions = {
             headers: { "User-Agent": userAgent }
         }
@@ -137,8 +138,7 @@ requestMRR = ->
         }
 
         olog data
-
-    catch err then log err
+    catch err then bs.report("@zealanddata.requestMRR: "+ err.message)
     return
 
 ############################################################
@@ -182,7 +182,7 @@ requestHICP = ->
         }
 
         olog data
-    catch err then log err
+    catch err then bs.report("@zealanddata.requestHICP: "+err.message)
     return
 
 ############################################################
@@ -233,15 +233,15 @@ requestGDPG = ->
         }
 
         olog { latestGDP, gdpBefore, gdpgQ, gdpgA, data }
-    catch err then log err
+    catch err then bs.report("@zealanddata.requestGDPG: "+err.message)
     return
 
 ############################################################
 export getData = -> data
 
 ############################################################
-export setCOTData = (cotData) ->
-    log "setCOTData"
+export cotDataSet = (cotData) ->
+    log "cotDataSet"
     data.cotIndex36 = cotData.n36Index
     data.cotIndex6 = cotData.n6Index
     olog data

@@ -5,43 +5,42 @@ import { createLogFunctions } from "thingy-debug"
 #endregion
 
 ############################################################
-import * as cfg from "./configmodule.js"
+authCodeToHandle = Object.create(null)
+## TODO upgrade the authCode Cancellation situation
 
 ############################################################
-authCodeToHandle = {}
-
-############################################################
-export initialize = ->
+export initialize = (c) ->
     log "initialize"
-    if cfg.fallbackAuthCode 
-        authCodeToHandle[cfg.fallbackAuthCode] = fbHandle 
-    #Implement or Remove :-)
+    if c.fallbackAuthCode 
+        authCodeToHandle[c.fallbackAuthCode] = {}
     return
 
-export setAccess = (authCode, ttlS) ->
+############################################################
+export setAccess = ({ authCode, ttlMS }) ->
     log "setAccess"
-    tllMS = tllS * 1000 # get time to live in Milliseconds
+    log authCode
+    log ttlMS
+
     deathHappens = () -> unsetAccess(authCode)
 
     handle = authCodeToHandle[authCode]
-    if handle? then clearTimeout(handle.deathTimerID)
+    if handle? then clearTimeout(handle.deathTimerId)
     else handle = {}
 
-    if !handle.sockets? then handle.sockets = new Set()
-
-    handle.deathTimerID = setTimeout(deathHappens, tllMS)    
+    handle.deathTimerId = setTimeout(deathHappens, ttlMS)    
+    authCodeToHandle[authCode] = handle
     return
 
+############################################################
 export unsetAccess = (authCode) ->
     log "unsetAccess"
+
     handle = authCodeToHandle[authCode]
     return unless handle? # already removed
 
+    clearTimeout(handle.deathTimerId)
     delete authCodeToHandle[authCode]
     return
 
-
-export checkSocket = (authCode, socket) ->
-    log "checkSocket"
-    handle = authCodeToHandle[authCode]
-    if !handle? then throw new Error("Invalid AuthCode!")
+############################################################
+export hasAccess = (authCode) -> authCodeToHandle[authCode]?

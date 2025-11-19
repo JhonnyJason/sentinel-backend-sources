@@ -6,6 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+import * as bs from "./bugsnitch.js"
 
 # ############################################################
 data = {
@@ -26,9 +27,9 @@ export initialize = ->
     data.mrr = "r.US"
     data.gdpg = "g.US"
 
-    # log "BLS API: #{cfg.blsAPIKey}"
-    # log "BEA API #{cfg.beaAPIKey}"
-    # log "FRED API #{cfg.fredAPIKey}"
+    # log "BLS API: #{cfg.apiKeyBls}"
+    # log "BEA API #{cfg.apiKeyBea}"
+    # log "FRED API #{cfg.apiKeyFred}"
 
     heartbeatMS = cfg.statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
@@ -53,7 +54,7 @@ heartbeat = ->
 requestMRR = ->
     log "requestMRR"
     try
-        url = "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=#{cfg.fredAPIKey}&file_type=json&sort_order=desc&limit=1"
+        url = "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=#{cfg.apiKeyFred}&file_type=json&sort_order=desc&limit=1"
         response = await fetch(url)
         mrrData = await response.json()
         
@@ -70,7 +71,7 @@ requestMRR = ->
         }
         # olog { mrr }
         olog data
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -83,7 +84,7 @@ requestHICP = ->
         lastYear = "#{date.getFullYear() - 1}"
 
         bodyJSON = {
-            registrationkey: cfg.blsAPIKey,
+            registrationkey: cfg.apiKeyBls,
             seriesid:["CUUR0000SA0"],
             startyear: lastYear,
             endyear: thisYear,
@@ -127,7 +128,7 @@ requestHICP = ->
 
         olog data
 
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -139,7 +140,7 @@ requestGDPG = ->
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
         yearBefore = "#{date.getFullYear() - 2}"
-        url = "https://apps.bea.gov/api/data?&UserId=#{cfg.beaAPIKey}&method=GetData&datasetname=NIPA&TableName=T10106&Frequency=Q&Year=#{thisYear},#{lastYear}, #{yearBefore}"
+        url = "https://apps.bea.gov/api/data?&UserId=#{cfg.apiKeyBea}&method=GetData&datasetname=NIPA&TableName=T10106&Frequency=Q&Year=#{thisYear},#{lastYear}, #{yearBefore}"
         response = await fetch(url) 
         allGDPData = await response.json()
 
@@ -185,15 +186,15 @@ requestGDPG = ->
 
         olog { latestGDP, gdpBefore, data }    
 
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
 export getData = -> data
 
 ############################################################
-export setCOTData = (cotData) ->
-    log "setCOTData"
+export cotDataSet = (cotData) ->
+    log "cotDataSet"
     data.cotIndex36 = cotData.n36Index
     data.cotIndex6 = cotData.n6Index
     olog data

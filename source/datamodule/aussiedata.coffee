@@ -6,6 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+import * as bs from "./bugsnitch.js"
 
 ############################################################
 monthToName = {
@@ -56,7 +57,7 @@ heartbeat = ->
             when "aussieMRR" then await requestMRR()
             when "aussieHICP" then await requestHICP()
             when "aussieGDPG" then await requestGDPG()
-    else 
+    else
         await requestMRR()
         await requestHICP()
         await requestGDPG()
@@ -122,7 +123,7 @@ requestMRR = ->
         }
 
         olog data
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -134,7 +135,7 @@ requestHICP = ->
             method: "GET"
             headers: {
                 "accept": "application/json"
-                "x-api-key": cfg.absAPIKey
+                "x-api-key": cfg.apiKeyAbs
             }
         }
         response = await fetch(url, fetchOptions)
@@ -155,7 +156,7 @@ requestHICP = ->
         }
 
         olog {data}
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -168,7 +169,7 @@ requestGDPG = ->
             method: "GET"
             headers: {
                 "accept": "application/json"
-                "x-api-key": cfg.absAPIKey
+                "x-api-key": cfg.apiKeyAbs
             }
         }
         response = await fetch(url, fetchOptions)
@@ -190,15 +191,15 @@ requestGDPG = ->
 
         olog { gdpgQ, gdpgA, data }    
         
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
 export getData = -> data
 
 ############################################################
-export setCOTData = (cotData) ->
-    log "setCOTData"
+export cotDataSet = (cotData) ->
+    log "cotDataSet"
     data.cotIndex36 = cotData.n36Index
     data.cotIndex6 = cotData.n6Index
     olog data

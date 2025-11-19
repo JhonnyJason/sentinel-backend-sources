@@ -6,12 +6,9 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as sci from "./scimodule.js"
-import * as state from "./serverstatemodule.js"
 
 ############################################################
 export serviceStartup = ->
     log "serviceStartup"
-    # other startup moves
-    state.setRunning()
-    sci.prepareAndExpose()
+    await sci.prepareAndExpose()
     return

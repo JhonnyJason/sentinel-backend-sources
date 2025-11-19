@@ -5,6 +5,9 @@ import { createLogFunctions } from "thingy-debug"
 #endregion
 
 ############################################################
+import * as bs from "./bugsnitch.js"
+
+############################################################
 import * as data from "./datamodule.js"
 import * as access from "./accessmodule.js"
 
@@ -22,33 +25,19 @@ class SocketConnection
 
     onMessage: (evnt) ->
         log "onMessage"
-        try
-            progress = 0
-            bytes = null
-            success = false
-            processingStart = performance.now()
-
-            message = evnt.data
-            log "#{message}"
-            bytes = message.length
-
-            msgObj = disectMessage(message) # message: command authCode argument
-            olog msgObj
-            progress = 1
-
-            access.checkSocket(msgObj.authCode, @socket)
-            progress = 2
-            
-            switch messageObject.command
-                when "getAllData" then sendAllData(@socket)
-                else throw new Error("unknown command: #{messageObject.command}")
-            
-            progress = 3
-            success = true
-        catch err then log err
-        
+        processingStart = performance.now()
+        try result = processMessage(evnt.data, @socket)        
+        catch err then bs.report("Soccket.onMessage: "+err.message)
         processingTime = performance.now() - processingStart
-        usage = { success, progress, bytes, processingTime }
+
+        if result? then usage = result
+        else usage = { 
+            success: false, 
+            error: "fatal",  
+            bytes: evnt.data.length
+        }
+
+        usage.processingTime = processingTime
         noteUsage(usage)
         return
 
@@ -77,15 +66,13 @@ sendAllData = (socket) ->
         data = JSON.stringify(data.getAllData())
         olog data
         socket.send(data)
-    catch err then log err
+    catch err then bs.report("Command.sendAllData: "+err.message)
     return
 
 disectMessage = (message) ->
     log "disectMessage"
     tokens = message.split(" ")
-    
-    if tokens.length < 1 then throw new Error("Unexpected message.split result!")
-    
+        
     command = tokens[0]
     authCode = ""
     argument = ""
@@ -100,7 +87,31 @@ disectMessage = (message) ->
 ############################################################
 noteUsage = (usage, socket) ->
     log "noteUsage"
+    ## TODO implement
     return
+
+############################################################
+processMessage = (message, sock) ->
+    log "processMessage"
+    olog { message }
+    result = Object.create(null)
+    result.success = false
+    result.bytes = message.length
+
+    msgObj = disectMessage(message) # message: command authCode argument
+    olog msgObj
+
+    result.error = "Unauthorized!"
+    if !access.hasAccess(msgObj.authCode) then return result
+    
+    result.error = "unknown command: #{msgObj.command}"
+    switch msgObj.command
+        when "getAllData" then sendAllData(sock)
+        else return result
+            
+    result.success = true
+    result.error = null
+    return result
 
 ############################################################
 export onConnect = (socket, req) ->

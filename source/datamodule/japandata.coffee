@@ -6,6 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+import * as bs from "./bugsnitch.js"
 
 ############################################################
 monthToName = {
@@ -50,6 +51,60 @@ export initialize = ->
     heartbeat()
     return
 
+
+############################################################
+#region Helper Functions
+buildBojUrl = (seriesCode, startYear, endYear) -> 
+  baseUrl = "#{bojOrigin}/ssi/cgi-bin/famecgi2"
+  params = new URLSearchParams({
+    cgi: '$nme_r030_en',
+    chkfrq: 'DD',
+    rdoheader: 'DETAIL',
+    rdodelimitar: 'COMMA',
+    sw_freq: 'NONE',
+    sw_yearend: 'NONE',
+    sw_observed: 'NONE',
+    hdnYyyyFrom: startYear,
+    hdnYyyyTo: endYear,
+    hdncode: seriesCode,
+  })
+  return "#{baseUrl}?#{params.toString()}";
+
+############################################################
+getGdpgFileUrl = ->
+    log "getGdpgFileUrl"
+    url = 'https://www.e-stat.go.jp/en/stat-search/files?page=1&layout=datalist&toukei=00100409&tstat=000001014470&cycle=2&tclass1=000001014471&tclass2=000001018314&stat_infid=000040316216&result_page=1&tclass3val=0'
+
+    response = await fetch(url)
+    html = await response.text()
+    linkStart = html.indexOf('<a href="/en/stat-search/file-download?statInfId=')
+    
+    ## extract URI
+    i = linkStart
+    while !(html[i] == '"')
+        i++
+
+    uriStart = ++i
+
+    while !(html[i] == '"')
+        i++
+    uriEnd = i
+
+    uri = html.slice(uriStart, uriEnd)
+    log uri
+
+    # <a href="/en/stat-search/file-download?statInfId=000040316216&amp;fileKind=1" class="stat-dl_icon stat-icon_1 stat-icon_format js-dl stat-download_icon_top" data-file_id="000010666989" data-release_count="2" tabindex="21">
+                                        
+    # "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283486&fileKind=1" # Quarterly Estimates of Real GDP (seasonally adjusted) -> csv file
+
+    # construct and return URL
+    url = "https://www.e-stat.go.jp"+uri
+    return url
+
+
+#endregion
+
+
 ############################################################
 heartbeat = ->
     log "heartbeat"
@@ -67,30 +122,35 @@ heartbeat = ->
     return
 
 ############################################################
-buildBOJUrl = (seriesCode, startYear, endYear) -> 
-  baseUrl = "#{bojOrigin}/ssi/cgi-bin/famecgi2"
-  params = new URLSearchParams({
-    cgi: '$nme_r030_en',
-    chkfrq: 'DD',
-    rdoheader: 'DETAIL',
-    rdodelimitar: 'COMMA',
-    sw_freq: 'NONE',
-    sw_yearend: 'NONE',
-    sw_observed: 'NONE',
-    hdnYyyyFrom: startYear,
-    hdnYyyyTo: endYear,
-    hdncode: seriesCode,
-  })
-  return "#{baseUrl}?#{params.toString()}";
-
-############################################################
+#region Functions For Requesting Data
 requestMRR = ->
     log "requestMRR"
     try
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
-        url = buildBOJUrl("IR01'MADR1Z@D", lastYear, thisYear)
+        ## Series Codes:
+        ## Basic Loan Rate
+        # The Basic Discount Rate and Basic Loan Rate (Monthly)	Daily "IR01'MADR1Z@D"
+        # The Basic Discount Rate and Basic Loan Rate (Monthly)	"IR01'MADR1M"
+        
+        ## Average Interest Rates Posted at Financial Institutions by Type of Deposit
+        # Time Deposits/ 10 Million Yen or More/1 Year (Monthly "IR02'DLDR43TL41YN"
+        # Ordinary Deposits (Monthly) "IR02'DLDR121N"
+        
+        ## Average Contract Interest Rates on Loans and Discounts	
+        # New Loans and Discounts/Short-term Loans and Discounts/Domestically Licensed Banks (Monthly)	"IR04'DLLR2CIDBNL2"
+        # New Loans and Discounts/Long-term Loans/Domestically Licensed Banks (Monthly)	"IR04'DLLR2CIDBNL3"
+        # New Loans and Discounts/Total/Domestically Licensed Banks	"IIR04'DLLR2CIDBNL1"
+        # Outstanding Loans and Bills Discounted/Short-term Loans and Discounts/Domestically Licensed Banks "IR04'DLLR2CIDBST2"
+        # Outstanding Loans and Bills Discounted/Long-term Loans/Domestically Licensed Banks (Monthly) "IR04'DLLR2CIDBST3"
+        
+        ## Call Rates
+        # Call Rate, Uncollateralized Overnight, Average (Daily) "FM01'STRDCLUCON"
+        # Call Rate, Uncollateralized Overnight/End of Month (Monthly) "FM02'STRECLUCON"
+        # Call Rate, Uncollateralized Overnight/Average (Monthly) "FM02'STRACLUCON"
+
+        url = buildBojUrl("IR01'MADR1Z@D", lastYear, thisYear) 
         response = await fetch(url)
         resultPage = await response.text()
         
@@ -116,10 +176,11 @@ requestMRR = ->
 
         dateToValue =  {}
         csvLines = csvResult.trim().split("\n")
+        # olog csvLines
         for line in csvLines
             t = line.split(",")
             if !t[0].startsWith(thisYear) then continue
-            if t[1] then dateToValue[t[0]] = t[1]
+            if t[1] and !isNaN(parseFloat(t[1])) then dateToValue[t[0]] = t[1]
 
         # olog dateToValue
         dates = Object.keys(dateToValue).sort().reverse()
@@ -137,7 +198,7 @@ requestMRR = ->
         }
 
         olog data
-    catch err then log err
+    catch err then bs.report("@japandata.requestMRR: "+err.message)
     return
 
 ############################################################
@@ -149,7 +210,7 @@ requestHICP = ->
         lastYear = "#{date.getFullYear() - 1}"
         
         params = new URLSearchParams({
-            appId: cfg.estatAPIKey,
+            appId: cfg.apiKeyEstat,
             lang: "E",
             statsDataId: "0003427113", # is not seasonally adjusted
             cdArea: "00000",
@@ -167,6 +228,7 @@ requestHICP = ->
         url = "http://api.e-stat.go.jp/rest/3.0/app/json/getStatsData?#{params.toString()}"
         response = await fetch(url)
         hicpData = await response.json()
+        # olog hicpData
         hicpData = hicpData.GET_STATS_DATA.STATISTICAL_DATA.DATA_INF.VALUE
 
         timeToValue = {}
@@ -190,19 +252,14 @@ requestHICP = ->
         }
 
         olog data
-    catch err then log err
+    catch err then bs.report("@japandata.requestHICP: "+err.message)
     return
 
 ############################################################
 requestGDPG = ->
     log "requestGDPG"
     try
-        
-        ## TODO: fix - bug: search for real download Link for the latest file:
-        # use this url: https://www.e-stat.go.jp/en/stat-search/files?page=1&layout=datalist&toukei=00100409&tstat=000001014470&cycle=2&tclass1=000001014471&tclass2=000001018314&stat_infid=000040316216&result_page=1&tclass3val=0
-        # then scrape for the real file dowload Link
-
-        url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283486&fileKind=1" # Quarterly Estimates of Real GDP (seasonally adjusted) -> csv file
+        url = await getGdpgFileUrl()
         response = await fetch(url) 
         gdpCSV = await response.text()
 
@@ -214,22 +271,22 @@ requestGDPG = ->
         lastYear = "#{date.getFullYear() - 1}"
 
         isRelevant = (line) ->
-            return line.startsWith("#{lastYear}/ 1- 3.") || line.startsWith("#{thisYear}/ 1- 3.") || line.startsWith("/ 4- 6.") || line.startsWith("/ 7- 9.") || line.startsWith("/ 10- 12.")
+            return line.startsWith("#{lastYear}/ 1- 3.") || line.startsWith("#{thisYear}/ 1- 3.") || line.startsWith("4- 6.") || line.startsWith("7- 9.") || line.startsWith("10- 12.")
 
         relevantLines = csvLines.filter(isRelevant)
-        # olog relevantLines
+        olog relevantLines
         t = relevantLines[relevantLines.length - 1].split(",")
         gdpg = parseFloat(t[1])
 
         if t[0].startsWith("#{thisYear}/ 1- 3.")
             dateString = "Q1 #{thisYear}"
-        if t[0].startsWith("/ 4- 6.")
+        if t[0].startsWith("4- 6.")
             td = relevantLines[relevantLines.length - 2].split(",")[0]
             dateString = "Q2 #{td.slice(0,4)}"
-        if t[0].startsWith("/ 7- 9.")
+        if t[0].startsWith("7- 9.")
             td = relevantLines[relevantLines.length - 3].split(",")[0]
             dateString = "Q3 #{td.slice(0,4)}"
-        if t[0].startsWith("/ 10- 12.")
+        if t[0].startsWith("10- 12.")
             td = relevantLines[relevantLines.length - 4].split(",")[0]
             dateString = "Q4 #{td.slice(0,4)}"
 
@@ -242,15 +299,16 @@ requestGDPG = ->
         }
 
         olog { data }    
-    catch err then log err
+    catch err then bs.report("@japandata.requestGDPG: "+err.message)
     return
+#endregion
 
 ############################################################
 export getData = -> data
 
 ############################################################
-export setCOTData = (cotData) ->
-    log "setCOTData"
+export cotDataSet = (cotData) ->
+    log "cotDataSet"
     data.cotIndex36 = cotData.n36Index
     data.cotIndex6 = cotData.n6Index
     olog data

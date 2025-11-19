@@ -21,17 +21,17 @@ export initialize = ->
 
 
 ############################################################
-export checkOrThrow = (ip, origin) ->
-    log "checkOrThrow"
+export isBlocked = (ip, origin) ->
+    log "isBlocked"
 
     if blockedIPs.has(ip)
         log "blocked request with IP: #{ip}"
-        throw new Error("IP blocked!")
+        return "IP blocked!"
     
     if !legalOrigins.has(origin)
         log "blocked request with origin: #{origin}"
         blockedIPs.add(ip)
-        throw new Error("Illegal Origin!")
+        return "Illegal Origin!"
     
     log "passed!"
     return

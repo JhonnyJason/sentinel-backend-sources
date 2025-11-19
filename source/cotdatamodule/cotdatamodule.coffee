@@ -14,6 +14,7 @@ import * as state from "cached-persistentstate"
 
 ############################################################
 import * as cfg from "./configmodule.js"
+import * as bs from "./bugsnitch.js"
 
 ############################################################
 import * as eurodata from "./eurodata.js"
@@ -137,16 +138,16 @@ updateCOTData = ->
 
         state.save("cotReportData", allData)
 
-        eurodata.setCOTData(summarizeCOTData("EUR"))
-        usdata.setCOTData(summarizeCOTData("USD")) 
-        japandata.setCOTData(summarizeCOTData("JPY"))
-        swissdata.setCOTData(summarizeCOTData("CHF"))
-        canadadata.setCOTData(summarizeCOTData("CAD"))
-        aussiedata.setCOTData(summarizeCOTData("AUD"))
-        zealanddata.setCOTData(summarizeCOTData("NZD"))
-        ukdata.setCOTData(summarizeCOTData("GBP"))
+        eurodata.cotDataSet(summarizeCOTData("EUR"))
+        usdata.cotDataSet(summarizeCOTData("USD")) 
+        japandata.cotDataSet(summarizeCOTData("JPY"))
+        swissdata.cotDataSet(summarizeCOTData("CHF"))
+        canadadata.cotDataSet(summarizeCOTData("CAD"))
+        aussiedata.cotDataSet(summarizeCOTData("AUD"))
+        zealanddata.cotDataSet(summarizeCOTData("NZD"))
+        ukdata.cotDataSet(summarizeCOTData("GBP"))
 
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 findYearsWithHoles = (dates) ->
@@ -169,7 +170,7 @@ findYearsWithHoles = (dates) ->
     for date in sortedDates
         daysDif = datesDaysDif(date, lastDate)
         
-        if daysDif > 13 
+        if daysDif > 13
             yearsMissing[date.getFullYear] = true
             yearsMissing[lastDate.getFullYear] = true
 
@@ -185,20 +186,20 @@ loadAllCOTReportData = ->
     ## Data of the current year might always be incomplete so we need to discard the cache
     year = date.getFullYear()
     try await loadAndDigestHistoricalData(year, true)
-    catch err then log "Could not load Data for #{year}: #{err.message}"
+    catch err then bs.report("Could not load Data for #{year}: #{err.message}")
 
     # older data should not change, so we consider the cache
     year-- 
     try await loadAndDigestHistoricalData(year)
-    catch err then log "Could not load Data for #{year}: #{err.message}"
+    catch err then bs.report("Could not load Data for #{year}: #{err.message}")
     
     year-- 
     try await loadAndDigestHistoricalData(year)
-    catch err then log "Could not load Data for #{year}: #{err.message}"
+    catch err then bs.report("Could not load Data for #{year}: #{err.message}")
 
     year-- 
     try await loadAndDigestHistoricalData(year)
-    catch err then log "Could not load Data for #{year}: #{err.message}"
+    catch err then bs.report("Could not load Data for #{year}: #{err.message}")
     return
 
 ############################################################
@@ -216,7 +217,7 @@ loadLatestReport = ->
 
         return digestCSVLines(csvLines)
 
-    catch err then log err
+    catch err then bs.report(err)
     return
 
 ############################################################
@@ -353,9 +354,10 @@ cotIndexForN6 = (asset) ->
 
 cotIndexForN36 = (asset) ->
     log "cotIndexForN36"
-    # 36 months -> (162) -> 163 Weeks = 1141 days
+    # 36 months -> (156) -> 157 Weeks = 1099 days
     leDat = new Date()
-    leDat.setDate(leDat.getDate() - 917)
+    # leDat.setDate(leDat.getDate() - 917)
+    leDat.setDate(leDat.getDate() - 1099)
     minDateString = leDat.toISOString().split("T")[0]
 
     return getCOTIndexFromDate(asset, minDateString)
@@ -376,6 +378,7 @@ getCOTIndexFromDate = (asset, minDate) ->
         if netPos < minNetValue then minNetValue = netPos
 
     latestDate = relevantDates.sort().reverse()[0]
+    olog { latestDate }
     latestValue = allData[latestDate][asset]
 
     fullRange = maxNetValue - minNetValue
@@ -383,132 +386,6 @@ getCOTIndexFromDate = (asset, minDate) ->
     index = 100.00 * currentLevel / fullRange
     olog { maxNetValue, minNetValue, latestValue }
     return index
-
-############################################################
-## deprecated code
-getRelevantFileData = (date) ->
-    log "getRelevantFileData"
-    fileData = {}
-
-    # we need the data for at least the last 3 years 
-    # so we need the file for this year + the 3 years before
-
-    year = date.getFullYear() ##e.g. 2025
-    fileData["#{thisYear}"] = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_#{thisYear}.zip"
-
-    year--    #e.g. 2024
-    fileData["#{thisYear}"] = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_#{thisYear}.zip"
-
-    year-- # e.g. 2023
-    fileData["#{thisYear}"] = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_#{thisYear}.zip"
-
-    year-- # e.g. 2022
-    fileData["#{thisYear}"] = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_#{thisYear}.zip"
-
-    return fileData
-
-############################################################
-## deprecated code
-retrieveCOTReports = ->
-    log "retrieveCOTReports"
-    try
-        fileData = getRelevantFileData(new Date())
-        for year, url of fileData
-            olog { year, url }
-
-
-    catch err then log err
-    return
-
-
-    # ressource = "gpe5-46if.json"
-    # commoditySubgroupCode = "F10"
-    
-    # url = "https://publicreporting.cftc.gov/resource/#{ressource}?cftc_subgroup_code=#{commoditySubgroupCode}"
-    # log url
-
-    # try
-    #     response = await fetch(url)
-    #     if !response.ok then throw new Error("Status was not Okay!\nStatusCode:#{response.status}")
-    #     resultJSON = await response.json()
-
-    #     # performance.mark('StartProcessing');
-
-    #     # for res in resultJSON
-    #     #     slotKey = currencyShortformForCFTCName(res.commodity)
-    #     #     dataSlot = data[slotKey]
-            
-    #     #     dateKey = res.report_date_as_yyyy_mm_dd.split("T")[0]
-            
-    #     #     dataSlot[dateKey] = {
-    #     #         dealerL: res.dealer_positions_long_all
-    #     #         dealerS: res.dealer_positions_long_all
-
-    #     #         # Funds Asset managers
-    #     #         assetManagersL: res.asset_mgr_positions_long
-    #     #         assetManagersS: res.asset_mgr_positions_short
-                
-    #     #         # Leveraged positions - High Volume Speculations
-    #     #         leveragedL: res.lev_money_positions_long
-    #     #         leveragedS: res.lev_money_positions_short
-
-    #     #         # Other Reportables - we don't know exactly
-    #     #         miscL: res.other_rept_positions_long
-    #     #         miscS: res.other_rept_positions_short
-
-    #     #         # Total of Reportables - should be all of the above
-    #     #         totalL: res.tot_rept_positions_long_all
-    #     #         totalS: res.tot_rept_positions_short
-
-    #     #         # Non-Reportables - mass of retail investors
-    #     #         nonReportableL: res.nonrept_positions_long_all
-    #     #         nonReportableS: res.nonrept_positions_short_all
-    #     #     }
-
-    #     allData = resultJSON.map((d) -> 
-    #         {
-    #             asset: currencyShortformForCFTCName(d.commodity)
-    #             date: d.report_date_as_yyyy_mm_dd.split("T")[0]
-
-    #             # Banks and Market Makers
-    #             dealerL: d.dealer_positions_long_all
-    #             dealerS: d.dealer_positions_short_all
-    #             dealersNet: d.dealer_positions_long_all - d.dealer_positions_short_all
-
-    #             # Funds Asset managers
-    #             assetManagersL: d.asset_mgr_positions_long
-    #             assetManagersS: d.asset_mgr_positions_short
-    #             assetManagersNet: d.asset_mgr_positions_long - d.asset_mgr_positions_short
-
-    #             # Leveraged positions - High Volume Speculations
-    #             leveragedL: d.lev_money_positions_long
-    #             leveragedS: d.lev_money_positions_short
-    #             leveragedNet: d.lev_money_positions_long - d.lev_money_positions_short
-
-    #             # Other Reportables - we don't know exactly
-    #             miscL: d.other_rept_positions_long
-    #             miscS: d.other_rept_positions_short
-    #             miscNet: d.other_rept_positions_long - d.other_rept_positions_short
-
-    #             # Total of Reportables - should be all of the above
-    #             totalL: d.tot_rept_positions_long_all
-    #             totalS: d.tot_rept_positions_short
-    #             totalNet: d.tot_rept_positions_long_all - d.tot_rept_positions_short
-
-    #             # Non-Reportables - mass of retail investors
-    #             nonReportableL: d.nonrept_positions_long_all
-    #             nonReportableS: d.nonrept_positions_short_all
-    #             nonReportableNet: d.nonrept_positions_long_all - d.nonrept_positions_short_all
-
-    #         }
-    #     )
-    #     data[d.asset][d.date] = d for d in allData            
-
-    #     # performance.mark('ProcessingFinished');
-    #     # performance.measure('ProcessingTime', 'StartProcessing', 'ProcessingFinished');
-
-    # catch err then log err
-    # return
 
 ############################################################
 #region Sample value
@@ -599,7 +476,3 @@ retrieveCOTReports = ->
 
 #endregion
 
-############################################################
-#region exposed functions
-
-#endregion
