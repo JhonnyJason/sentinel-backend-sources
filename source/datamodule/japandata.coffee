@@ -150,7 +150,7 @@ requestMRR = ->
         # Call Rate, Uncollateralized Overnight/End of Month (Monthly) "FM02'STRECLUCON"
         # Call Rate, Uncollateralized Overnight/Average (Monthly) "FM02'STRACLUCON"
 
-        url = buildBojUrl("IR01'MADR1Z@D", lastYear, thisYear) 
+        url = buildBojUrl("FM01'STRDCLUCON", lastYear, thisYear) 
         response = await fetch(url)
         resultPage = await response.text()
         

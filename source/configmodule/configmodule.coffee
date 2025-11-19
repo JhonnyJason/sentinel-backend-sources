@@ -30,6 +30,7 @@ export rbnzUserAgent = localCfg.rbnzUserAgent || ""
 export accessManagerId = localCfg.accessManagerId || ""
 export snitchSocket = localCfg.snitchSocket || "/run/bugsnitch.sk"
 
+############################################################
 localCfg = null
 
 ############################################################
@@ -80,4 +81,4 @@ export cotDataRequestHeartbeatMS = 86_400_000 #24h
 
 # export testRun = "cotData"
 
-export testRun = "accounts"
+# export testRun = "accounts"
