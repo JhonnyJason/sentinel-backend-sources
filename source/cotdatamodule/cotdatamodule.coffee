@@ -35,6 +35,10 @@ obs = new PerformanceObserver(
 obs.observe({ type: 'measure' })
 
 ############################################################
+DAYS36M = 1096 ## = 3y = 365 + 365 + 366 (max one leap year) 
+DAYS6M = 184 ## = 4*31 + 2*30 # at max we have 4 out of 6 months being 31 days
+
+############################################################
 allData = { # we need data for the last 163 weeks >= 36 months
 }
 
@@ -122,10 +126,11 @@ updateCOTData = ->
 
         years = findYearsWithHoles(dateKeys)
         olog years
+        # return
         for year in years
             try await loadAndDigestHistoricalData(year, true)
             catch err then log "Could not load Data for #{year}: #{err.message}"
-
+        
         dateKeys = Object.keys(allData).sort().reverse()
         # olog dateKeys
         # log dateKeys.length
@@ -138,14 +143,14 @@ updateCOTData = ->
 
         state.save("cotReportData", allData)
 
-        eurodata.cotDataSet(summarizeCOTData("EUR"))
+        # eurodata.cotDataSet(summarizeCOTData("EUR"))
         usdata.cotDataSet(summarizeCOTData("USD")) 
         japandata.cotDataSet(summarizeCOTData("JPY"))
-        swissdata.cotDataSet(summarizeCOTData("CHF"))
-        canadadata.cotDataSet(summarizeCOTData("CAD"))
-        aussiedata.cotDataSet(summarizeCOTData("AUD"))
-        zealanddata.cotDataSet(summarizeCOTData("NZD"))
-        ukdata.cotDataSet(summarizeCOTData("GBP"))
+        # swissdata.cotDataSet(summarizeCOTData("CHF"))
+        # canadadata.cotDataSet(summarizeCOTData("CAD"))
+        # aussiedata.cotDataSet(summarizeCOTData("AUD"))
+        # zealanddata.cotDataSet(summarizeCOTData("NZD"))
+        # ukdata.cotDataSet(summarizeCOTData("GBP"))
 
     catch err then bs.report(err)
     return
@@ -156,9 +161,9 @@ findYearsWithHoles = (dates) ->
         year = (new Date()).getFullYear()
         return ["#{year--}", "#{year--}", "#{year--}", "#{year}"]
 
-    # 36 months -> (162) -> 163 Weeks = 917 days
+    daysToCare = DAYS36M + 7 # oldest date to care add a week for completeness
     leDat = new Date()
-    leDat.setDate(leDat.getDate() - 917)
+    leDat.setDate(leDat.getDate() - daysToCare) 
     minDate = leDat.toISOString().split("T")[0]
 
     relevantDates = dateKeys.filter((el) -> (el > minDate))
@@ -171,8 +176,8 @@ findYearsWithHoles = (dates) ->
         daysDif = datesDaysDif(date, lastDate)
         
         if daysDif > 13
-            yearsMissing[date.getFullYear] = true
-            yearsMissing[lastDate.getFullYear] = true
+            yearsMissing[date.getFullYear()] = true
+            yearsMissing[lastDate.getFullYear()] = true
 
         lastDate = date
 
@@ -233,7 +238,7 @@ loadAndDigestHistoricalData = (year, overwriteCache) ->
         try fileBuffer = fs.readFileSync(fileName)
         catch err then log err
 
-    if !fileBuffer? 
+    if !fileBuffer?
         response = await fetch(getFileURL(year))
         if !response.ok then throw new Error("Fetch response not OK! (#{response.status})")
 
@@ -258,7 +263,7 @@ digestCSVLines = (csvLines) ->
     # olog headElements
 
     for line,i in csvLines
-        
+        log line
         data = line.split(",")
         if data.length < 10 then continue
         cCode = data[COMMODITY_CODE].trim()
@@ -271,9 +276,12 @@ digestCSVLines = (csvLines) ->
         date = data[REPORT_DATE].trim().split("T")[0]
         longPos = parseInt(data[DEALERS_LONG].trim())
         shortPos = parseInt(data[DEALERS_SHORT].trim())
-        netLong =  longPos - shortPos 
-        addDataPoint({currency, date, netLong})
+        netLong =  longPos - shortPos
+        dataPoint = { currency, date, netLong }
+        # olog dataPoint
+        addDataPoint(dataPoint)
 
+        # if i == 3 then return
     return
 
 ############################################################
@@ -281,8 +289,12 @@ addDataPoint = (dataObj) ->
     # log "addDataPoint"
     if !allData[dataObj.date]? then allData[dataObj.date] = {}
     dateSlot = allData[dataObj.date]
-    if !dateSlot[dataObj.currency]? then dateSlot[dataObj.currency] = dataObj.netLong
-    else log "double entry for date + currency!"
+    
+    ## Indicate if we have a double entry, but otherwise just overwrite
+    ## as the newer entry might be an updated value
+    if dateSlot[dataObj.currency]? then log "allData[date][currency] exists -> overwrite."
+
+    dateSlot[dataObj.currency] = dataObj.netLong   
     return
 
 ############################################################
@@ -345,21 +357,20 @@ summarizeCOTData = (asset) ->
 ############################################################
 cotIndexForN6 = (asset) ->
     log "cotIndexForN6"
-    # 6 months -> (26) -> 27 Weeks = 189 days
+    # daysRelevant = DAYS6M + 7 #add safety margin
     leDat = new Date()
-    leDat.setDate(leDat.getDate() - 189)
+    leDat.setDate(leDat.getDate() - DAYS6M)
     minDateString = leDat.toISOString().split("T")[0]
-
+    log "minDate: "+minDateString
     return getCOTIndexFromDate(asset, minDateString)
 
 cotIndexForN36 = (asset) ->
     log "cotIndexForN36"
-    # 36 months -> (156) -> 157 Weeks = 1099 days
+    # daysRelevant = DAYS36M + 7 #add safety margin
     leDat = new Date()
-    # leDat.setDate(leDat.getDate() - 917)
-    leDat.setDate(leDat.getDate() - 1099)
+    leDat.setDate(leDat.getDate() - DAYS36M)
     minDateString = leDat.toISOString().split("T")[0]
-
+    log "minDate: "+minDateString
     return getCOTIndexFromDate(asset, minDateString)
 
 getCOTIndexFromDate = (asset, minDate) ->

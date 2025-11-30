@@ -3,7 +3,7 @@ import { addModulesToDebug } from "thingy-debug"
 ############################################################
 modulesToDebug = {
     # authmodule: true
-    # cotdatamodule: true
+    cotdatamodule: true
     # eurodata: true
     # usdata: true
     # japandata: true
