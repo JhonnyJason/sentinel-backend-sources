@@ -143,14 +143,14 @@ updateCOTData = ->
 
         state.save("cotReportData", allData)
 
-        # eurodata.cotDataSet(summarizeCOTData("EUR"))
+        eurodata.cotDataSet(summarizeCOTData("EUR"))
         usdata.cotDataSet(summarizeCOTData("USD")) 
         japandata.cotDataSet(summarizeCOTData("JPY"))
-        # swissdata.cotDataSet(summarizeCOTData("CHF"))
-        # canadadata.cotDataSet(summarizeCOTData("CAD"))
-        # aussiedata.cotDataSet(summarizeCOTData("AUD"))
-        # zealanddata.cotDataSet(summarizeCOTData("NZD"))
-        # ukdata.cotDataSet(summarizeCOTData("GBP"))
+        swissdata.cotDataSet(summarizeCOTData("CHF"))
+        canadadata.cotDataSet(summarizeCOTData("CAD"))
+        aussiedata.cotDataSet(summarizeCOTData("AUD"))
+        zealanddata.cotDataSet(summarizeCOTData("NZD"))
+        ukdata.cotDataSet(summarizeCOTData("GBP"))
 
     catch err then bs.report(err)
     return
