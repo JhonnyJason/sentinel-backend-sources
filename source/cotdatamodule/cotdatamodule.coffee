@@ -35,10 +35,6 @@ obs = new PerformanceObserver(
 obs.observe({ type: 'measure' })
 
 ############################################################
-DAYS36M = 1096 ## = 3y = 365 + 365 + 366 (max one leap year) 
-DAYS6M = 184 ## = 4*31 + 2*30 # at max we have 4 out of 6 months being 31 days
-
-############################################################
 allData = { # we need data for the last 163 weeks >= 36 months
 }
 
@@ -56,11 +52,27 @@ commodityCodeToCurrency = {
     "098": "USD"
 }
 
+contractCodeToCurrency = {
+    "090741": "CAD",
+    "092741": "CHF",
+    "096742": "GBP",
+    "097741": "JPY",
+    "099741": "EUR",
+    "232741": "AUD",
+    "112741": "NZD",
+    "098662": "USD"
+}
+
 ############################################################
 REPORT_DATE = 2
 COMMODITY_CODE = 6
+CONTRACT_CODE = 3
 DEALERS_LONG = 8
 DEALERS_SHORT = 9
+
+############################################################
+DAYS36M = 1096 ## = 3y = 365 + 365 + 366 (max one leap year) 
+DAYS6M = 184 ## = 4*31 + 2*30 # at max we have 4 out of 6 months being 31 days
 
 ############################################################
 data = {
@@ -144,13 +156,13 @@ updateCOTData = ->
         state.save("cotReportData", allData)
 
         eurodata.cotDataSet(summarizeCOTData("EUR"))
-        usdata.cotDataSet(summarizeCOTData("USD")) 
-        japandata.cotDataSet(summarizeCOTData("JPY"))
-        swissdata.cotDataSet(summarizeCOTData("CHF"))
-        canadadata.cotDataSet(summarizeCOTData("CAD"))
-        aussiedata.cotDataSet(summarizeCOTData("AUD"))
-        zealanddata.cotDataSet(summarizeCOTData("NZD"))
-        ukdata.cotDataSet(summarizeCOTData("GBP"))
+        # usdata.cotDataSet(summarizeCOTData("USD")) 
+        # japandata.cotDataSet(summarizeCOTData("JPY"))
+        # swissdata.cotDataSet(summarizeCOTData("CHF"))
+        # canadadata.cotDataSet(summarizeCOTData("CAD"))
+        # aussiedata.cotDataSet(summarizeCOTData("AUD"))
+        # zealanddata.cotDataSet(summarizeCOTData("NZD"))
+        # ukdata.cotDataSet(summarizeCOTData("GBP"))
 
     catch err then bs.report(err)
     return
@@ -266,10 +278,12 @@ digestCSVLines = (csvLines) ->
         log line
         data = line.split(",")
         if data.length < 10 then continue
-        cCode = data[COMMODITY_CODE].trim()
+        # cCode = data[COMMODITY_CODE].trim()
+        cCode = data[CONTRACT_CODE].trim()
         # log "#{cCode} is #{typeof cCode}"
 
-        currency = commodityCodeToCurrency[cCode]
+        # currency = commodityCodeToCurrency[cCode]
+        currency = contractCodeToCurrency[cCode]
         if !currency? then continue
         # log "detected currency: #{currency}"
 
