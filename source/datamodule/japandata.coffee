@@ -179,12 +179,12 @@ requestMRR = ->
         # olog csvLines
         for line in csvLines
             t = line.split(",")
-            if !t[0].startsWith(thisYear) then continue
+            # if !t[0].startsWith(thisYear) then continue
             if t[1] and !isNaN(parseFloat(t[1])) then dateToValue[t[0]] = t[1]
 
         # olog dateToValue
         dates = Object.keys(dateToValue).sort().reverse()
-        # log dates
+        log dates
 
         # log dates[0]
         mrrDate = new Date(dates[0])
