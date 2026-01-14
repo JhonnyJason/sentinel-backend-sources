@@ -82,11 +82,12 @@ requestHICP = ->
         date = new Date()
         thisYear = "#{date.getFullYear()}"
         lastYear = "#{date.getFullYear() - 1}"
+        yearBefore = "#{date.getFullYear() - 2}"
 
         bodyJSON = {
             registrationkey: cfg.apiKeyBls,
             seriesid:["CUUR0000SA0"],
-            startyear: lastYear,
+            startyear: yearBefore,
             endyear: thisYear,
         }
 
@@ -105,17 +106,39 @@ requestHICP = ->
         if hicpData.status != "REQUEST_SUCCEEDED" then throw new Error(hicpData.message)
         hicpData = hicpData.Results.series[0].data
 
+        dataMap = {}
+
         # olog hicpData
-        for d in hicpData when d.latest? and d.latest == "true"
+        for d in hicpData
+            key = d.year + d.period
+            dataMap[key] = d
+
+        dates = Object.keys(dataMap).sort().reverse()
+        # log dates  
+
+        noValues = true
+        freshestIndex = 0
+        while(noValues)
+            if freshestIndex > 5 then throw new Error("US Inflation data - we could not get a value pair latestValue + valueBefore ( 1 year before ) within the latest 5 values.")
+
+            latestDate = dates[freshestIndex]
+            dateYearBefore = dates[freshestIndex + 12]
+
+            d = dataMap[latestDate]
             latestValue = parseFloat(d.value)
             period = d.period
             dateString = "#{d.periodName} #{d.year}"
-            break
 
-        for d in hicpData when d.period == period and d.year == lastYear
+            d = dataMap[dateYearBefore]
             valueBefore = parseFloat(d.value)
-            break
+                    
+            # olog {
+            #     latestValue,
+            #     valueBefore
+            # }
 
+            if latestValue == 0 or valueBefore == 0 or isNaN(latestValue) or isNaN(valueBefore) then freshestIndex++
+            else noValues = false 
         
         hicp = (100.0 * latestValue / valueBefore) - 100
         data.hicp = "#{hicp.toFixed(2)}%"
