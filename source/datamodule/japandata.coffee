@@ -184,12 +184,17 @@ requestMRR = ->
 
         # olog dateToValue
         dates = Object.keys(dateToValue).sort().reverse()
-        log dates
+        # log dates
 
         # log dates[0]
         mrrDate = new Date(dates[0])
-
         mrr = parseFloat(dateToValue[dates[0]])
+
+        # olog {
+        #     mrrDate, 
+        #     mrr
+        # }
+
         data.mrr = "#{mrr.toFixed(2)}%"
         data.mrrMeta = {
             source: '<a href="https://www.boj.or.jp/en/">BOJ</a>',

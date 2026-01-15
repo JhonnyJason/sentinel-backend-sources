@@ -60,7 +60,7 @@ export cotDataRequestHeartbeatMS = 86_400_000 #24h
 # export testRun = "usHICP"
 # export testRun = "usGDPG"
 
-# export testRun = "japanMRR"
+export testRun = "japanMRR"
 # export testRun = "japanHICP"
 # export testRun = "japanGDPG"
 
