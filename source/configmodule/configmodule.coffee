@@ -38,8 +38,9 @@ export name = "sentinel-backend"
 export legalOrigins = [
     "localhost", 
     "localhost:3333", 
+    "sentinel-backend.dotv.ee",
     "sentinel-dashboard-dev.dotv.ee",
-    "sentinel-backend.dotv.ee"
+    "sentinel.ewag-handelssysteme.de"
 ]
 
 ############################################################
