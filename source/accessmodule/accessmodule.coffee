@@ -5,6 +5,19 @@ import { createLogFunctions } from "thingy-debug"
 #endregion
 
 ############################################################
+import * as secUtl from "secret-manager-crypto-utils"
+import { STRINGHEX32, STRINGHEX64, STRINGHEX128, NUMBER, 
+    createValidator } from "thingy-schema-validate"
+
+############################################################
+validateAuthMessage = createValidator({
+    randomHex: STRINGHEX32
+    timestamp: NUMBER
+    publicKey: STRINGHEX64
+    signature: STRINGHEX128
+})
+
+############################################################
 authCodeToHandle = Object.create(null)
 ## TODO upgrade the authCode Cancellation situation
 
@@ -44,3 +57,24 @@ export unsetAccess = (authCode) ->
 
 ############################################################
 export hasAccess = (authCode) -> authCodeToHandle[authCode]?
+
+export authorizeAdmin = (authMessage) ->
+    log "authorizeAdmin"
+    authObj = JSON.parse(authMessage)
+    err = validateAuthMessage(authObj)
+    if err then return err
+
+    pubKey = authObj.publicKey
+    return "Key not Known!" unless authorizedKeys.has(pubKey)
+
+    sigHex = authObj.signature
+    content = authMessage.replace(sigHex, "")
+    isValid = await secUtl.verify(sigHex, pubKey, content)
+    if !isValid then return "Invalid Signature!"
+    return
+
+############################################################
+export setAdminKeys = (adminKeys) ->
+    log "setAdminKeys"
+    
+    return

@@ -20,7 +20,7 @@ setValidatorCreator(createValidator)
 import { signatureAuth } from "./authmodule.js"
 
 ############################################################
-import { setAccess, unsetAccess } from "./accessmodule.js"
+import { setAccess, unsetAccess, setAdminKeys } from "./accessmodule.js"
 
 #endregion
 
@@ -54,6 +54,14 @@ sciAdd("revokeAccess", unsetAccess, {
     bodySizeLimit: 1024, 
     authOption: signatureAuth,
     argsSchema: STRINGHEX32
+})
+#Response is 204 when signature is valid 403 otherwise
+
+############################################################
+sciAdd("setAdminKeys", setAdminKeys, {
+    bodySizeLimit: 4096, 
+    authOption: signatureAuth,
+    argsSchema: { adminKeys: ARRAY }
 })
 #Response is 204 when signature is valid 403 otherwise
 

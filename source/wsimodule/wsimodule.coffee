@@ -101,17 +101,40 @@ processMessage = (message, sock) ->
     msgObj = disectMessage(message) # message: command authCode argument
     olog msgObj
 
+    if msgObj.command == "authorizeAdmin" then authorizeAdmin(msgObj,sock)
+
     result.error = "Unauthorized!"
-    if !access.hasAccess(msgObj.authCode) then return result
+    if !access.hasAccess(msgObj.authCode) and !sock.admin then return result
     
     result.error = "unknown command: #{msgObj.command}"
     switch msgObj.command
         when "getAllData" then sendAllData(sock)
+        when "getAllMakroData" then sendAllMakroData()
+         
         else return result
             
     result.success = true
     result.error = null
     return result
+
+############################################################
+authorizeAdmin = (msgObj, sock) ->
+    log "authorizeAdmin"
+    ## get authorization message
+    authMsg = msgObj.authCode
+    try 
+        err = await access.authorizeAdmin(authMsg)
+        if err 
+            log "invalid admin authorization"
+            return # early return on
+    catch err
+        log "Exception on admin authorization: "+err.message
+        return # early return on
+
+    ## on Succcess
+    sock.admin = true
+    sock.send('{type: "authorizationApproved"}')
+    return
 
 ############################################################
 export onConnect = (socket, req) ->
