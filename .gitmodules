@@ -1,3 +1,9 @@
 [submodule "source/scicore"]
 	path = source/scicore
 	url = git@github.com:JhonnyJason/service-sources-scicoremodule.git
+[submodule "source/servicekeysmodule"]
+	path = source/servicekeysmodule
+	url = git@github.com:JhonnyJason/service-sources-servicekeysmodule.git
+[submodule "source/signencstoremodule"]
+	path = source/signencstoremodule
+	url = git@github.com:JhonnyJason/service-sources-signencstoremodule.git
