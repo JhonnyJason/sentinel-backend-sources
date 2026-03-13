@@ -87,4 +87,4 @@ export cotDataRequestHeartbeatMS = 86_400_000 #24h
 
 # export testRun = "cotData"
 
-# export testRun = "accounts"
+export testRun = "accounts"

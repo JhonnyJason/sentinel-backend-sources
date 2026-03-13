@@ -20,7 +20,7 @@ setValidatorCreator(createValidator)
 import { signatureAuth } from "./authmodule.js"
 
 ############################################################
-import { setAccess, unsetAccess, setAdminKeys } from "./accessmodule.js"
+import  *  as access from "./accessmodule.js"
 
 #endregion
 
@@ -37,6 +37,11 @@ import { setAccess, unsetAccess, setAdminKeys } from "./accessmodule.js"
 ############################################################ 
 #region ADMIN Functions
 
+############################################################
+setAccess = (args) ->
+    access.setAccess(args.authCode, args.ttlMS)
+    return
+
 ############################################################ 
 sciAdd("grantAccess", setAccess, {
     bodySizeLimit: 1024, 
@@ -49,6 +54,12 @@ sciAdd("grantAccess", setAccess, {
 })
 #Response is 204 when signature is valid 403 otherwise 
 
+
+############################################################
+unsetAccess = (authCode) ->
+    access.unsetAccess(authCode)
+    return
+
 ############################################################
 sciAdd("revokeAccess", unsetAccess, {
     bodySizeLimit: 1024, 
@@ -57,11 +68,17 @@ sciAdd("revokeAccess", unsetAccess, {
 })
 #Response is 204 when signature is valid 403 otherwise
 
+
+############################################################
+setAdminKeys = (adminKeys) ->
+    access.setAdminKeys(adminKeys)
+    return
+
 ############################################################
 sciAdd("setAdminKeys", setAdminKeys, {
     bodySizeLimit: 4096, 
     authOption: signatureAuth,
-    argsSchema: { adminKeys: ARRAY }
+    argsSchema: ARRAY 
 })
 #Response is 204 when signature is valid 403 otherwise
 
