@@ -5,6 +5,7 @@ import * as cotdatamodule from "./cotdatamodule.js"
 import * as datamodule from "./datamodule.js"
 import * as debugmodule from "./debugmodule.js"
 import * as earlyblockermodule from "./earlyblockermodule.js"
+import * as paramdatamodule from "./paramdatamodule.js"
 import * as scimodule from "./scimodule.js"
 import * as servicekeysmodule from "./servicekeysmodule.js"
 import * as signencstoremodule from "./signencstoremodule.js"
@@ -19,6 +20,7 @@ Modules = {
     datamodule,
     debugmodule,
     earlyblockermodule,
+    paramdatamodule,
     scimodule,
     servicekeysmodule,
     signencstoremodule,

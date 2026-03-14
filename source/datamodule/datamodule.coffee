@@ -15,7 +15,10 @@ import * as zealanddata from "./zealanddata.js"
 import * as ukdata from "./ukdata.js"
 
 ############################################################
-allData = { default: "no-data" }
+import * as paramdata from "./paramdatamodule.js"
+
+############################################################
+makroData = Object.create(null)
 
 ############################################################
 export initialize = ->
@@ -31,15 +34,33 @@ export initialize = ->
     return
 
 ############################################################
-export getAllData = -> 
-    log "getAllData" 
-    ## Todo simply return the finished persistent JSON
-    allData.eurozone = eurodata.getData()
-    allData.usa = usdata.getData()
-    allData.japan = japandata.getData()
-    allData.switzerland = swissdata.getData()
-    allData.canada = canadadata.getData()
-    allData.australia = aussiedata.getData()
-    allData.newzealand = zealanddata.getData()
-    allData.uk = ukdata.getData()
-    return allData
+# export getAllMakroData = -> 
+getAllMakroData = -> 
+    log "getAllMakroData" 
+    makroData.eurozone = eurodata.getData()
+    makroData.usa = usdata.getData()
+    makroData.japan = japandata.getData()
+    makroData.switzerland = swissdata.getData()
+    makroData.canada = canadadata.getData()
+    makroData.australia = aussiedata.getData()
+    makroData.newzealand = zealanddata.getData()
+    makroData.uk = ukdata.getData()
+    return makroData
+
+############################################################
+export getAllData = ->
+    ## TODO implement paramdatamodule and getPublishedSnapshot function
+    pubShot = paramdata.getPublishedSnapshot()
+    data = getAllMakroData()
+
+    data.eurozone._params = pubShot.areaParams.eurozone
+    data.usa._params = pubShot.areaParams.usa
+    data.japan._params = pubShot.areaParams.japan
+    data.switzerland._params = pubShot.areaParams.switzerland
+    data.canada._params = pubShot.areaParams.canada
+    data.australia._params = pubShot.areaParams.australia
+    data.newzealand._params = pubShot.areaParams.newzealand
+    data.uk._params = pubShot.areaParams.uk
+    
+    data._params = params.globalParams
+    return data

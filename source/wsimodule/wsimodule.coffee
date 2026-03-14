@@ -10,6 +10,7 @@ import * as bs from "./bugsnitch.js"
 ############################################################
 import * as data from "./datamodule.js"
 import * as access from "./accessmodule.js"
+import * as paramD from "./paramdatamodule.js"
 
 ############################################################
 clientIdCount = 0
@@ -60,15 +61,6 @@ class SocketConnection
         return
     
 ############################################################
-sendAllData = (socket) -> 
-    log "sendAllData"
-    try
-        data = JSON.stringify(data.getAllData())
-        olog data
-        socket.send(data)
-    catch err then bs.report("Command.sendAllData: "+err.message)
-    return
-
 disectMessage = (message) ->
     log "disectMessage"
     tokens = message.split(" ")
@@ -101,16 +93,21 @@ processMessage = (message, sock) ->
     msgObj = disectMessage(message) # message: command authCode argument
     olog msgObj
 
-    if msgObj.command == "authorizeAdmin" then authorizeAdmin(msgObj,sock)
-
+    if msgObj.command == "authorizeAdmin" then authorizeAdmin(msgObj, sock)
     result.error = "Unauthorized!"
     if !access.hasAccess(msgObj.authCode) and !sock.admin then return result
     
     result.error = "unknown command: #{msgObj.command}"
     switch msgObj.command
         when "getAllData" then sendAllData(sock)
-        when "getAllMakroData" then sendAllMakroData()
-         
+        when "getAllMakroData" then sendAllData(sock)
+        ## Admin Commands - for admin commands the authCode is the argument
+        when "authorizeAdmin" then log "admin socket is authorized :-)"
+        when "getAllHistory" then getAllHistory(sock)
+        when "createEntry" then createEntry(msgObj.authCode, sock)
+        when "saveEntry" then saveEntry(msgObj.authCode, sock)
+        when "publishEntry" then publishEntry(msgObj.authCode, sock)
+        when "renameEntry" then renameEntry(msgObj.authCode, sock)
         else return result
             
     result.success = true
@@ -118,6 +115,7 @@ processMessage = (message, sock) ->
     return result
 
 ############################################################
+#region Admin Commands
 authorizeAdmin = (msgObj, sock) ->
     log "authorizeAdmin"
     ## get authorization message
@@ -135,6 +133,65 @@ authorizeAdmin = (msgObj, sock) ->
     sock.admin = true
     sock.send('{type: "authorizationApproved"}')
     return
+
+getAllHistory = (sock) ->
+    log "getAllHistory"
+    try
+        type = "allHistory"
+        data = paramD.getAllHistory()
+        msg = JSON.stringify({type, data})
+        olog msg
+        socket.send(msg)
+    catch err then bs.report("Command.getAllHistory: "+err.message)
+    return
+
+createEntry = (args, sock) ->
+    log "createEntry"
+    msg = '{"type": "createEntryResult", "ok": true}'
+    try paramD.createEntry(JSON.parse(args)) 
+    catch err then msg = '{"type": "createEntryResult", "ok": false}'
+    sock.send(msg)
+    return
+
+saveEntry = (args, sock) ->
+    log "saveEntry"
+    msg = '{"type": "saveEntryResult", "ok": true}'
+    try paramD.saveEntry(JSON.parse(args)) 
+    catch err then msg = '{"type": "saveEntryResult", "ok": false}'
+    sock.send(msg)
+    return 
+
+publishEntry = (args, sock) ->
+    log "publishEntry"
+    msg = '{"type": "publishEntryResult", "ok": true}'
+    try paramD.publishEntry(JSON.parse(args))
+    catch err then msg = '{"type": "publishEntryResult", "ok": false}'
+    sock.send(msg)
+    return
+
+renameEntry = (args, sock) ->
+    log "renameEntry"
+    msg = '{"type": "renameEntryResult", "ok": true}'
+    try paramD.renameEntry(JSON.parse(args)) 
+    catch err then msg = '{"type": "renameEntryResult", "ok": false}'
+    sock.send(msg)
+    return
+
+#endregion
+
+############################################################
+#region Regular Commands
+sendAllData = (socket) -> 
+    log "sendAllData"
+    try
+        data = JSON.stringify(data.getAllData())
+        olog data
+        socket.send(data)
+    catch err then bs.report("Command.sendAllData: "+err.message)
+    return
+
+
+#endregion
 
 ############################################################
 export onConnect = (socket, req) ->
