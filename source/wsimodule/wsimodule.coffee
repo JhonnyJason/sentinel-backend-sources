@@ -31,6 +31,8 @@ class SocketConnection
         catch err then bs.report("Soccket.onMessage: "+err.message)
         processingTime = performance.now() - processingStart
 
+        if result? and result.error == "Unauthorized!" then @socket.send('"Unauthorized!"') # needs to be JSON string
+
         if result? then usage = result
         else usage = { 
             success: false, 
@@ -188,9 +190,11 @@ renameEntry = (args, sock) ->
 sendAllData = (socket) -> 
     log "sendAllData"
     try
-        data = JSON.stringify(data.getAllData())
-        log data
-        socket.send(data)
+        data = data.getAllData()
+        type = "allData"
+        msg = JSON.stringify({type, data})
+        log msg
+        socket.send(msg)
     catch err then bs.report("Command.sendAllData: "+err.message)
     return
 

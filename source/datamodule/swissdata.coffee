@@ -91,8 +91,7 @@ requestMRR = ->
         }
 
         olog data
-
-    catch err then bs.report(err)
+    catch err then bs.report("@swissdata.requestMRR: "+err.message)
     return
 
 ############################################################
@@ -136,8 +135,7 @@ requestHICP = ->
         }
 
         olog {data}
-
-    catch err then bs.report(err)
+    catch err then bs.report("@swissdata.requestHICP: "+err.message)
     return
 
 ############################################################
@@ -193,8 +191,7 @@ requestGDPG = ->
         }
 
         olog { latestGDP, gdpBefore, data }    
-        
-    catch err then bs.report(err)
+    catch err then bs.report("@swissdata.requestGDPG: "+err.message)
     return
 
 

@@ -87,7 +87,7 @@ requestMRR = ->
         }
 
         olog data
-    catch err then bs.report(err)
+    catch err then bs.report("@eurodata.requestMRR: "+err.message)
     return
 
 ############################################################
@@ -131,11 +131,12 @@ requestHICP = ->
         }
 
         olog {data}
-    catch err then bs.report(err)
+    catch err then bs.report("@eurodata.requestHICP: "+err.message)
     return
 
 ############################################################
 requestGDPG = ->
+    log "requestGDPG"
     ## Here we want Annualized QoQ growth of Real GDP 
     #  -> Adjusted for inflation, Seasonality and Calendar 
     try
@@ -187,7 +188,7 @@ requestGDPG = ->
         }
 
         olog { latestGDP, gdpBefore, gdpgQ, gdpgA, data }    
-    catch err then bs.report(err)
+    catch err then bs.report("@eurodata.requestGDPG: "+err.message)
     return
 
 ############################################################

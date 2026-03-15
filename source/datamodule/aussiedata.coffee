@@ -123,7 +123,7 @@ requestMRR = ->
         }
 
         olog data
-    catch err then bs.report(err)
+    catch err then bs.report("@aussiedata.requestMRR: "+err.message)
     return
 
 ############################################################
@@ -156,11 +156,12 @@ requestHICP = ->
         }
 
         olog {data}
-    catch err then bs.report(err)
+    catch err then bs.report("@aussiedata.requestHICP: "+err.message)
     return
 
 ############################################################
 requestGDPG = ->
+    log "requestGDPG"
     ## Here we want Annualized QoQ growth of Real GDP 
     #  -> Adjusted for inflation, Seasonality and Calendar 
     try
@@ -189,9 +190,8 @@ requestGDPG = ->
             date: dateString
         }
 
-        olog { gdpgQ, gdpgA, data }    
-        
-    catch err then bs.report(err)
+        olog { gdpgQ, gdpgA, data }
+    catch err then bs.report("@aussiedata.requestGDPG: "+err.message)
     return
 
 ############################################################
