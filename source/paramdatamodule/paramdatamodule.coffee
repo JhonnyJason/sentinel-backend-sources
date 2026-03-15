@@ -31,29 +31,23 @@ export initialize = ->
 
 ############################################################
 #region exported functions
-export getAllHistory = ->
-    log "getAllHistory"
+export getSnapshotData = ->
+    log "getSnapshotData"
     return null unless Object.keys(historicEntries).length > 0
-    
-    allData = Object.create(null)
-    allData.entries = historicEntries
-    allData.published = published
-    return allData
+    return store
 
 export createEntry = ({ name, snapshot }) ->
     log "createEntry"
     historicEntries[name] = [] unless historicEntries[name]?
     historicEntries[name].push(snapshot)
-    save()
-    return
+    return save()
 
 export saveEntry = ({ name, version, snapshot }) ->
     log "saveEntry"
     idx = version - 1
     throw new Error("Invalid Version Number!") unless idx >= 0
     historicEntries[name][idx] = snapshot
-    save()
-    return
+    return save()
 
 export publishEntry = ({ name, version }) ->
     log "publishEntry"
@@ -63,8 +57,7 @@ export publishEntry = ({ name, version }) ->
     throw new Error("Version does not exist!") unless historicEntries[name][idx]?
     published = { name, version }
     store.published = published
-    save()
-    return
+    return save()
 
 export renameEntry = ({ oldName, newName }) ->
     log "renameEntry"
@@ -72,8 +65,7 @@ export renameEntry = ({ oldName, newName }) ->
     throw new Error("New Snapshot name already exists!") unless !historicEntries[newName]?
     historicEntries[newName] = historicEntries[oldName]
     delete historicEntries[oldName]
-    save()
-    return
+    return save()
 
 #endregion
 

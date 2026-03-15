@@ -103,7 +103,7 @@ processMessage = (message, sock) ->
         when "getAllMakroData" then sendAllData(sock)
         ## Admin Commands - for admin commands the authCode is the argument
         when "authorizeAdmin" then log "admin socket is authorized :-)"
-        when "getAllHistory" then getAllHistory(sock)
+        when "getSnapshotData" then getSnapshotData(sock)
         when "createEntry" then createEntry(msgObj.authCode, sock)
         when "saveEntry" then saveEntry(msgObj.authCode, sock)
         when "publishEntry" then publishEntry(msgObj.authCode, sock)
@@ -134,15 +134,15 @@ authorizeAdmin = (msgObj, sock) ->
     sock.send('{type: "authorizationApproved"}')
     return
 
-getAllHistory = (sock) ->
-    log "getAllHistory"
+getSnapshotData = (sock) ->
+    log "getSnapshotData"
     try
-        type = "allHistory"
-        data = paramD.getAllHistory()
+        type = "snapshotData"
+        data = paramD.getSnapshotData()
         msg = JSON.stringify({type, data})
         olog msg
         socket.send(msg)
-    catch err then bs.report("Command.getAllHistory: "+err.message)
+    catch err then bs.report("Command.getSnapshotData: "+err.message)
     return
 
 createEntry = (args, sock) ->
@@ -150,6 +150,7 @@ createEntry = (args, sock) ->
     msg = '{"type": "createEntryResult", "ok": true}'
     try paramD.createEntry(JSON.parse(args)) 
     catch err then msg = '{"type": "createEntryResult", "ok": false}'
+    log msg
     sock.send(msg)
     return
 
@@ -158,6 +159,7 @@ saveEntry = (args, sock) ->
     msg = '{"type": "saveEntryResult", "ok": true}'
     try paramD.saveEntry(JSON.parse(args)) 
     catch err then msg = '{"type": "saveEntryResult", "ok": false}'
+    log msg
     sock.send(msg)
     return 
 
@@ -166,6 +168,7 @@ publishEntry = (args, sock) ->
     msg = '{"type": "publishEntryResult", "ok": true}'
     try paramD.publishEntry(JSON.parse(args))
     catch err then msg = '{"type": "publishEntryResult", "ok": false}'
+    log msg
     sock.send(msg)
     return
 
@@ -174,6 +177,7 @@ renameEntry = (args, sock) ->
     msg = '{"type": "renameEntryResult", "ok": true}'
     try paramD.renameEntry(JSON.parse(args)) 
     catch err then msg = '{"type": "renameEntryResult", "ok": false}'
+    log msg
     sock.send(msg)
     return
 
@@ -185,7 +189,7 @@ sendAllData = (socket) ->
     log "sendAllData"
     try
         data = JSON.stringify(data.getAllData())
-        olog data
+        log data
         socket.send(data)
     catch err then bs.report("Command.sendAllData: "+err.message)
     return

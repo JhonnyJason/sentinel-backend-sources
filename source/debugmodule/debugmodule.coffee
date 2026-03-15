@@ -7,7 +7,7 @@ modulesToDebug = {
     # cotdatamodule: true
     # eurodata: true
     # usdata: true
-    # japandata: true
+    japandata: true
     # swissdata: true
     # canadadata: true
     # aussiedata: true
