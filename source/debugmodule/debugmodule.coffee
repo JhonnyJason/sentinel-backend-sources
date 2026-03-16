@@ -9,7 +9,7 @@ modulesToDebug = {
     # usdata: true
     # japandata: true
     # swissdata: true
-    # canadadata: true
+    canadadata: true
     # aussiedata: true
     # ukdata: true
     # zealanddata: true

@@ -37,6 +37,9 @@ data = {
 }
 
 ############################################################
+mrr_cookies = ""
+
+############################################################
 export initialize = ->
     log "initialize"
     data.hicp = "i.AU"
@@ -102,7 +105,7 @@ findSeriesKey = (search, structure) ->
             valueIndex = dim.values.findIndex(
                 (v) -> v.id is target.id or v.name is target.name
             )
-            
+
             if valueIndex < 0
                 throw new Error "Value #{target} not found in #{dim.id}" 
 
@@ -150,7 +153,22 @@ excractLatestQoQGDPG = (sdmxJSON) ->
 requestMRR = ->
     log "requestMRR"
     try
-        response = await fetch("https://www.rba.gov.au/statistics/tables/csv/a2-data.csv")
+        url = "https://www.rba.gov.au/statistics/tables/csv/a2-data.csv"
+        options = {
+            method: 'GET',
+            headers: { 
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+                "Accept": "text/csv,application/octet-stream;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": "https://www.rba.gov.au/",
+                "Connection": "keep-alive",
+                "Cookie": mrr_cookies
+            }
+        }
+        response = await fetch(url, options)
+        status = response.status
+        mrr_cookies = response.headers.get("set-cookie")
+
         csvTable = await response.text()
 
         csvLines = csvTable.split("\n")
@@ -158,6 +176,10 @@ requestMRR = ->
         titleLine = csvLines[1]
         titleEls = titleLine.split(",")
         if titleEls[0] != "Title" or titleEls[2] != "New Cash Rate Target"
+            olog {
+                "Title": titleEls[0]
+                "NewCashRateTarget": titleEls[2]
+            }
             throw new Error("Unexpected structure!")
         
         latestRate = NaN

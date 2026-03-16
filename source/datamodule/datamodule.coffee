@@ -49,9 +49,10 @@ getAllMakroData = ->
 
 ############################################################
 export getAllData = ->
-    ## TODO implement paramdatamodule and getPublishedSnapshot function
-    pubShot = paramdata.getPublishedSnapshot()
+    log "getAllData"
     data = getAllMakroData()
+    pubShot = paramdata.getPublishedSnapshot()
+    return data unless pubShot?
 
     data.eurozone._params = pubShot.areaParams.eurozone
     data.usa._params = pubShot.areaParams.usa
@@ -62,5 +63,5 @@ export getAllData = ->
     data.newzealand._params = pubShot.areaParams.newzealand
     data.uk._params = pubShot.areaParams.uk
     
-    data._params = params.globalParams
+    data._params = pubShot.globalParams
     return data
