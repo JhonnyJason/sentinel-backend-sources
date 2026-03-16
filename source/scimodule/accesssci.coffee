@@ -70,15 +70,15 @@ sciAdd("revokeAccess", unsetAccess, {
 
 
 ############################################################
-setAdminKeys = (adminKeys) ->
-    access.setAdminKeys(adminKeys)
+setAdminKeys = (args) ->
+    access.setAdminKeys(args.adminKeys)
     return
 
 ############################################################
 sciAdd("setAdminKeys", setAdminKeys, {
     bodySizeLimit: 4096, 
     authOption: signatureAuth,
-    argsSchema: ARRAY 
+    argsSchema: { adminKeys: ARRAY } 
 })
 #Response is 204 when signature is valid 403 otherwise
 
