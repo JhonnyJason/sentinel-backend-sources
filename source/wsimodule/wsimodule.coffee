@@ -128,6 +128,7 @@ authorizeAdmin = (msgObj, sock) ->
         err = await access.authorizeAdmin(authMsg)
         if err 
             log "invalid admin authorization"
+            log err
             return # early return on
     catch err
         log "Exception on admin authorization: "+err.message
