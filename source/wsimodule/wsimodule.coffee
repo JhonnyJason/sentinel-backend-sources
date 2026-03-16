@@ -136,7 +136,7 @@ authorizeAdmin = (msgObj, sock) ->
 
     ## on Succcess
     sock.admin = true
-    sock.send('{type: "authorizationApproved"}')
+    sock.send('{"type": "authorizationApproved"}')
     return
 
 getSnapshotData = (sock) ->
