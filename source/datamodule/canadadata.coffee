@@ -90,45 +90,76 @@ requestMRR = ->
 requestHICP = ->
     log "requestHICP"
     try
-        url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
-        bodyJSON = [{
-            "vectorId": 41690973, # Raw CPI Level, no seasonal adjustment
-            "latestN": 13
-        }]
+        # url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
+        # bodyJSON = [{
+        #     "vectorId": 36400, # Raw CPI Level, no seasonal adjustment
+        #     "latestN": 13
+        # }]
+        # url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods"
+        # bodyJSON = [{
+        #     "productId": 10100106, 
+        #     "coordinate": "1.3.0.0.0.0.0.0.0.0", 
+        #     "latestN": 13 
+        # }]
 
-        fetchOptions = {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bodyJSON)
-        }
-        response = await fetch(url, fetchOptions)
-        hicpData = await response.json()
+        # url = "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010010601&cubeTimeFrame.startMonth=05&cubeTimeFrame.startYear=2025&cubeTimeFrame.endMonth=02&cubeTimeFrame.endYear=2026&referencePeriods=20250501%2C20260201" # yoy CPI change, seasonaly adjusted
+
+        # url = "https://www150.statcan.gc.ca/t1/wds/rest/getSeriesInfoFromCubePid"
+        # bodyJSON = [{ "productId": 10100106 }]
+
+        # fetchOptions = {
+        #     method: "POST",
+        #     headers: {
+        #         'Content-Type': 'application/json'
+        #     },
+        #     body: JSON.stringify(bodyJSON)
+        # }
+
+        # response = await fetch(url, fetchOptions)
+        # log response.status
+        # hicpData = await response.json()
         # olog hicpData
 
-        hicpData = hicpData[0].object.vectorDataPoint
-        # olog hicpData
+        # hicpData = hicpData[0].object.vectorDataPoint
+        # # olog hicpData
         
-        periodToValue = {}
-        for d in hicpData
-            periodToValue[d.refPer] = d.value
-        # olog periodToValue
-        periods = Object.keys(periodToValue).sort().reverse()
+        # periodToValue = {}
+        # for d in hicpData
+        #     periodToValue[d.refPer] = d.value
+        # # olog periodToValue
+        # periods = Object.keys(periodToValue).sort().reverse()
 
-        # olog periods
-        # log periods[0]
-        # log periods[12]
-        latestIndex = parseFloat(periodToValue[periods[0]])
-        indexBefore = parseFloat(periodToValue[periods[12]])
+        # # olog periods
+        # # log periods[0]
+        # # log periods[12]
+        # latestIndex = parseFloat(periodToValue[periods[0]])
+        # indexBefore = parseFloat(periodToValue[periods[12]])
 
-        #Formated Date
-        # log periods[0]
-        ts = periods[0].split("-")
-        dateString = "#{monthToName[ts[1]]} #{ts[0]}"
+        # #Formated Date
+        # # log periods[0]
+        # ts = periods[0].split("-")
+        # dateString = "#{monthToName[ts[1]]} #{ts[0]}"
 
-        hicp = 100.00 * latestIndex / indexBefore - 100
-        data.hicp = "#{hicp.toFixed(2)}%"
+        # hicp = 100.00 * latestIndex / indexBefore - 100
+
+
+        url = "https://www150.statcan.gc.ca/n1/dai-quo/ssi/homepage/ind-econ.json"
+        response = await fetch(url)
+        log response.status
+        indicatorData = await response.json()
+        log Object.keys(indicatorData)
+
+        indicators = indicatorData.results.indicators
+        for ind in indicators
+            if ind.registry_number == 3665 and ind.indicator_number == 1
+                refPer = ind.refper.en
+                hicp = ind.growth_rate.growth.en
+                break 
+        
+        dateString = refPer
+        
+        if (typeof hicp == "string") then data.hicp = hicp
+        else data.hicp = "#{hicp.toFixed(2)}%" 
         data.hicpMeta = {
             source: '<a href="https://www.statcan.gc.ca/en/start" target="_blank">Statistics Canada</a>',
             dataSet: "CPI monthly data (18-10-0004-01/v41690973)",
