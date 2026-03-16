@@ -78,7 +78,7 @@ export cotDataRequestHeartbeatMS = 86_400_000 #24h
 # export testRun = "aussieGDPG"
 
 # export testRun = "zealandMRR"
-export testRun = "zealandHICP" # maybe check
+# export testRun = "zealandHICP" # maybe check
 # export testRun = "zealandGDPG" # maybe check
 
 # export testRun = "ukMRR"
