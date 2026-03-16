@@ -64,8 +64,67 @@ heartbeat = ->
     return
 
 ############################################################
+decodeSeriesTable = (data) ->
+    dims = data.structure.dimensions.series
+    series = data.dataSets[0].series
+
+    table = []
+
+    for key of series
+
+        indexes = key.split(":")
+        row = {}
+        row.key = key
+
+        for i in [0...dims.length]
+
+            dim = dims[i]
+            index = parseInt(indexes[i])
+
+            if dim? and dim.values? and dim.values[index]?
+                row[dim.id] = dim.values[index].id
+            else
+                row[dim.id] = "?"
+
+        table.push row
+
+    console.table table
+    return table
+
+findSeriesKey = (search, structure) ->
+    dims = structure.dimensions.series
+    indexes = []
+
+    for dim in dims
+        if search[dim.id]?
+            target = search[dim.id]
+
+            valueIndex = dim.values.findIndex(
+                (v) -> v.id is target.id or v.name is target.name
+            )
+            
+            if valueIndex < 0
+                throw new Error "Value #{target} not found in #{dim.id}" 
+
+            indexes.push valueIndex
+
+        else indexes.push 0   # default if not specified
+
+    return indexes.join(":")
+
 excractLatestYoYHICP = (sdmxJSON) ->
-    key = "1:0:0:0:0" # YoY Change in %, All groups CPI, not seasonally adjusted
+    # decodeSeriesTable(sdmxJSON)
+    search = { # YoY Change in %, All groups CPI, not seasonally adjusted
+        "MEASURE": { id: "3" },
+        "INDEX": { id: "10001" },
+        "TSEST": { id: "20" },
+        # "REGION": { id: "50" }
+        # "FREQ": { id: "M"}
+    }
+    key = findSeriesKey(search, sdmxJSON.structure)
+    # key = "2:0:0:0:0" 
+    log key
+
     observations = sdmxJSON.dataSets[0].series[key].observations
     latestKey = Object.keys(observations).sort().reverse()[0]
     # olog latestKey
@@ -129,8 +188,9 @@ requestMRR = ->
 ############################################################
 requestHICP = ->
     log "requestHICP"
-    try 
-        url = "https://indicator.api.abs.gov.au/v1/data/CPI_M_H/JSON"
+    try
+        # url = "https://indicator.api.abs.gov.au/v1/data/CPI_M_H/JSON"
+        url = "https://indicator.api.abs.gov.au/v1/data/CPI_H/JSON"
         fetchOptions = {
             method: "GET"
             headers: {
@@ -142,7 +202,7 @@ requestHICP = ->
         hicpData = await response.json()
         # olog hicpData
         latestDataPoint = excractLatestYoYHICP(hicpData)
-        # olog latestDataPoint
+        olog latestDataPoint
 
         ts = latestDataPoint.latestPeriod.split("-")
         dateString = "#{monthToName[ts[1]]} #{ts[0]}"

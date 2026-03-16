@@ -73,14 +73,22 @@ buildBojUrl = (seriesCode, startYear, endYear) ->
 ############################################################
 getGdpgFileUrl = ->
     log "getGdpgFileUrl"
-    url = 'https://www.e-stat.go.jp/en/stat-search/files?page=1&layout=datalist&toukei=00100409&tstat=000001014470&cycle=2&tclass1=000001014471&tclass2=000001018314&stat_infid=000040316216&result_page=1&tclass3val=0'
+
+    # <a tabindex="22" href="/en/stat-search/files?page=1&amp;layout=datalist&amp;cycle=2&amp;toukei=00100409&amp;tstat=000001014470&amp;tclass1=000001014471&amp;tclass2=000001018314&amp;result_page=1&amp;tclass3val=0&amp;stat_infid=000040425840" class="stat-link_text stat-dataset_list-detail-item-text js-data" data-key="uid" data-value="000040425840" data-key1="page" data-value1="1">
+    #                                 Annualized rate of changes from the previous quarter
+    #                                 </a>
+
+    # general URL of page for latest data on GDPG, second preliminary of quarterly estimates 
+    url = 'https://www.e-stat.go.jp/en/stat-search/files?page=1&layout=datalist&toukei=00100409&tstat=000001014470&cycle=2&tclass1=000001014471&tclass2=000001018314&result_page=1&tclass3val=0'
 
     response = await fetch(url)
     html = await response.text()
-    linkStart = html.indexOf('<a href="/en/stat-search/file-download?statInfId=')
-    
-    ## extract URI
-    i = linkStart
+
+    start = html.indexOf("Real Gross Domestic Product (seasonally adjusted series)")
+    start = html.indexOf("Annualized rate of changes from the previous quarter", start)
+    start =  html.indexOf('<a href="/en/stat-search/file-download?statInfId=', start)
+
+    i = start
     while !(html[i] == '"')
         i++
 
@@ -91,16 +99,8 @@ getGdpgFileUrl = ->
     uriEnd = i
 
     uri = html.slice(uriStart, uriEnd)
-    log uri
-
-    # <a href="/en/stat-search/file-download?statInfId=000040316216&amp;fileKind=1" class="stat-dl_icon stat-icon_1 stat-icon_format js-dl stat-download_icon_top" data-file_id="000010666989" data-release_count="2" tabindex="21">
-                                        
-    # "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040283486&fileKind=1" # Quarterly Estimates of Real GDP (seasonally adjusted) -> csv file
-
-    # construct and return URL
     url = "https://www.e-stat.go.jp"+uri
     return url
-
 
 #endregion
 
@@ -266,6 +266,7 @@ requestGDPG = ->
     log "requestGDPG"
     try
         url = await getGdpgFileUrl()
+        log url
         response = await fetch(url) 
         gdpCSV = await response.text()
 
@@ -277,7 +278,7 @@ requestGDPG = ->
         lastYear = "#{date.getFullYear() - 1}"
 
         isRelevant = (line) ->
-            return line.startsWith("#{lastYear}/ 1- 3.") || line.startsWith("#{thisYear}/ 1- 3.") || line.startsWith("4- 6.") || line.startsWith("7- 9.") || line.startsWith("10- 12.")
+            return line.startsWith("#{lastYear}/ 1- 3.") || line.startsWith("#{thisYear}/ 1- 3.") || line.startsWith("4- 6.") || line.startsWith("7- 9.") || line.startsWith("10-12.")
 
         relevantLines = csvLines.filter(isRelevant)
         olog relevantLines
@@ -292,7 +293,7 @@ requestGDPG = ->
         if t[0].startsWith("7- 9.")
             td = relevantLines[relevantLines.length - 3].split(",")[0]
             dateString = "Q3 #{td.slice(0,4)}"
-        if t[0].startsWith("10- 12.")
+        if t[0].startsWith("10-12.")
             td = relevantLines[relevantLines.length - 4].split(",")[0]
             dateString = "Q4 #{td.slice(0,4)}"
 

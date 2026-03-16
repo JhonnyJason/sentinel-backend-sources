@@ -2,12 +2,12 @@ import { addModulesToDebug } from "thingy-debug"
 
 ############################################################
 modulesToDebug = {
-    accessmodule: true
-    authmodule: true
+    # accessmodule: true
+    # authmodule: true
     # cotdatamodule: true
     # eurodata: true
     # usdata: true
-    japandata: true
+    # japandata: true
     # swissdata: true
     # canadadata: true
     # aussiedata: true
@@ -16,7 +16,7 @@ modulesToDebug = {
     # scicoremodule: true
     # scimodule: true
     # startupmodule: true
-    wsimodule: true
+    # wsimodule: true
 }
 
 addModulesToDebug(modulesToDebug)
