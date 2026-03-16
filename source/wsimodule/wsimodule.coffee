@@ -120,6 +120,8 @@ processMessage = (message, sock) ->
 #region Admin Commands
 authorizeAdmin = (msgObj, sock) ->
     log "authorizeAdmin"
+    # authorizeAdmin {"randomHex":"3a25e7c69af3e846c4259683e7c19af7b9fb2ce996668dd32a5d95d758ba60c13272b1409284f22cfb57ccafab442efe","timestamp":1773665100000,"publicKey":"3e8110543457d3b8e0b38912fd5c8f6ec995398f58243f75e8b89f20e4f06664","signature":"c2fa0b7ecb34bf8d13082918a84d6faf35afde6639f2211dd83fa5840f54a9d2e7c89312b4bc532b0516ef2dac7ac72471389a5a1d22fa45db8b7622a388cb03"}
+    
     ## get authorization message
     authMsg = msgObj.authCode
     try 

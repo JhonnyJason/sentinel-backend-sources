@@ -217,7 +217,7 @@ requestGDPG = ->
 
         dateRaw = dataSheet[dateCell].v
         dt = excelToJSDate(dateRaw)
-        dateString = "#{numToQuarter[dt.getMonth()]} #{dt.getFullYear()}" # Q2 2025
+        dateString = "#{numToQuarter[dt.getMonth()]} #{dt.getFullYear()}"
         
         latestGDP = parseFloat(dataSheet[dataCellQLatest].v)
         gdpBefore = parseFloat(dataSheet[dataCellQBefore].v)

@@ -49,8 +49,9 @@ export initialize = (c) ->
     if store.adminAccessKeys? then adminAccessKeys = store.adminAccessKeys
     else store.adminAccessKeys = adminAccessKeys
     authorizedKeys = new Set(adminAccessKeys)
+    log adminAccessKeys
 
-    if c.fallbackAuthCode 
+    if c.fallbackAuthCode
         authCodeToHandle[c.fallbackAuthCode] = {}
     
     setInterval(cleanoutAccess, cleanoutIntervalMS)
@@ -93,6 +94,7 @@ export unsetAccess = (authCode) ->
 ############################################################
 export setAdminKeys = (adminKeys) ->
     log "setAdminKeys"
+    log adminKeys
     store.adminAccessKeys = adminKeys
     adminAccessKeys = adminKeys
     authorizedKeys = new Set(adminKeys)
