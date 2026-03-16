@@ -31,6 +31,18 @@ export initialize = ->
 
 ############################################################
 #region exported functions
+export getPublishedSnapshot = ->
+    log "getPublishedSnapshot"
+    return null unless published?
+    entries = historicEntries[published.name]
+    idx = published.version - 1
+
+    return null unless entries?    
+    snapshot = entries[idx]
+    
+    return null unless snapshot?
+    return snapshot
+
 export getSnapshotData = ->
     log "getSnapshotData"
     return null unless Object.keys(historicEntries).length > 0
