@@ -95,7 +95,7 @@ processMessage = (message, sock) ->
     msgObj = disectMessage(message) # message: command authCode argument
     olog msgObj
 
-    if msgObj.command == "authorizeAdmin" then authorizeAdmin(msgObj, sock)
+    if msgObj.command == "authorizeAdmin" then await authorizeAdmin(msgObj, sock)
     result.error = "Unauthorized!"
     if !access.hasAccess(msgObj.authCode) and !sock.admin then return result
     
