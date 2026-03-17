@@ -16,6 +16,7 @@ modulesToDebug = {
     # scicoremodule: true
     # scimodule: true
     # startupmodule: true
+    paramdatamodule: true
     wsimodule: true
 }
 

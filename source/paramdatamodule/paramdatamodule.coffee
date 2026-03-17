@@ -36,11 +36,14 @@ export getPublishedSnapshot = ->
     return null unless published?
     entries = historicEntries[published.name]
     idx = published.version # no -1 as it seems it already is the index ;-)
+    log "'published' obj exists :-) "
 
     return null unless entries?    
     snapshot = entries[idx]
-    
+    log "'entries' for published name exist :-)"
+
     return null unless snapshot?
+    log "The published snapshot exists :-)"
     return snapshot
 
 export getSnapshotData = ->
