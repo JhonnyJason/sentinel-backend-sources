@@ -146,7 +146,7 @@ getSnapshotData = (sock) ->
         data = paramD.getSnapshotData()
         msg = JSON.stringify({type, data})
         olog msg
-        socket.send(msg)
+        sock.send(msg)
     catch err then bs.report("Command.getSnapshotData: "+err.message)
     return
 
