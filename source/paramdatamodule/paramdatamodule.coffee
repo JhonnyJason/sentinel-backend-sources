@@ -35,7 +35,7 @@ export getPublishedSnapshot = ->
     log "getPublishedSnapshot"
     return null unless published?
     entries = historicEntries[published.name]
-    idx = published.version - 1
+    idx = published.version # no -1 as it seems it already is the index ;-)
 
     return null unless entries?    
     snapshot = entries[idx]
@@ -56,14 +56,14 @@ export createEntry = ({ name, snapshot }) ->
 
 export saveEntry = ({ name, version, snapshot }) ->
     log "saveEntry"
-    idx = version - 1
+    idx = version # no -1 as it seems it already is the index ;-)
     throw new Error("Invalid Version Number!") unless idx >= 0
     historicEntries[name][idx] = snapshot
     return save()
 
 export publishEntry = ({ name, version }) ->
     log "publishEntry"
-    idx = version - 1
+    idx = version # no -1 as it seems it already is the index ;-)
     throw new Error("Invalid Version Number!") unless idx >= 0
     throw new Error("Snapshot name does not exist!") unless historicEntries[name]?
     throw new Error("Version does not exist!") unless historicEntries[name][idx]?

@@ -5,6 +5,9 @@ import { createLogFunctions } from "thingy-debug"
 #endregion
 
 ############################################################
+import * as cachedData from "cached-persistentstate"
+
+############################################################
 import * as cfg from "./configmodule.js"
 import * as bs from "./bugsnitch.js"
 
@@ -35,6 +38,9 @@ data = {
     cotIndex36:  NaN
     cotIndex6:  NaN
 }
+STOREKEY = "aussiedata"
+############################################################
+save = -> await cachedData.save(STOREKEY)
 
 ############################################################
 mrr_cookies = ""
@@ -42,9 +48,19 @@ mrr_cookies = ""
 ############################################################
 export initialize = ->
     log "initialize"
+    if cfg? then cachedData.initialize(cfg.persistentStateOptions) 
+    else cachedData.initialize()
+
     data.hicp = "i.AU"
     data.mrr = "r.AU"
     data.gdpg = "g.AU"
+    data.cotIndex6 = "c6.AU"
+    data.cotIndex36 = "c36.AU"
+
+    store = cachedData.load(STOREKEY)
+    if !store.hicp? or !store.gdpg?
+        cachedData.save(STOREKEY, data)
+    else data = store
 
     heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
@@ -64,6 +80,7 @@ heartbeat = ->
         await requestMRR()
         await requestHICP()
         await requestGDPG()
+    save()
     return
 
 ############################################################

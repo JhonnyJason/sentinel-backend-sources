@@ -6,6 +6,8 @@ import { createLogFunctions } from "thingy-debug"
 
 
 ############################################################
+import * as cachedData from "cached-persistentstate"
+############################################################
 import * as xlsx from "xlsx"
 
 ############################################################
@@ -54,6 +56,9 @@ data = {
     cotIndex36:  NaN
     cotIndex6:  NaN
 }
+STOREKEY = "zealanddata"
+############################################################
+save = -> await cachedData.save(STOREKEY)
 
 ############################################################
 userAgent = "me"
@@ -61,9 +66,19 @@ userAgent = "me"
 ############################################################
 export initialize = ->
     log "initialize"
+    if cfg? then cachedData.initialize(cfg.persistentStateOptions) 
+    else cachedData.initialize()
+
     data.hicp = "i.NZ"
     data.mrr = "r.NZ"
     data.gdpg = "g.NZ"
+    data.cotIndex6 = "c6.NZ"
+    data.cotIndex36 = "c36.NZ"
+
+    store = cachedData.load(STOREKEY)
+    if !store.hicp? or !store.gdpg?
+        cachedData.save(STOREKEY, data)
+    else data = store
 
     if cfg.testRun? then userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
     else userAgent = cfg.rbnzUserAgent
@@ -97,6 +112,7 @@ heartbeat = ->
         await requestMRR()
         await requestHICP()
         await requestGDPG()
+    save()
     return
 
 ############################################################
