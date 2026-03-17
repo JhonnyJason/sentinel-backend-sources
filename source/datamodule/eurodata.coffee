@@ -43,7 +43,7 @@ STOREKEY = "eurodata"
 save = -> await cachedData.save(STOREKEY)
 
 ############################################################
-export initialize = (cfg) ->
+export initialize = ->
     log "initialize"
     if cfg? then cachedData.initialize(cfg.persistentStateOptions) 
     else cachedData.initialize()
@@ -59,7 +59,7 @@ export initialize = (cfg) ->
         cachedData.save(STOREKEY, data)
     else data = store
 
-    heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
+    heartbeatMS = cfg.statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
     heartbeat()
     return

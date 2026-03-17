@@ -74,7 +74,7 @@ export initialize = ->
     else data = store
 
 
-    heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
+    heartbeatMS = cfg.statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
     heartbeat()
     return

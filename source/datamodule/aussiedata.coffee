@@ -62,7 +62,7 @@ export initialize = ->
         cachedData.save(STOREKEY, data)
     else data = store
 
-    heartbeatMS = cfg. statisticsDataRequestHeartbeatMS
+    heartbeatMS = cfg.statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
     heartbeat()
     return
