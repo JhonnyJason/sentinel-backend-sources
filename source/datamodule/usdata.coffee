@@ -6,6 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as cachedData from "cached-persistentstate"
+import { FRED } from "fred-sentinel"
 
 ############################################################
 import * as cfg from "./configmodule.js"
@@ -27,10 +28,15 @@ STOREKEY = "usdata"
 save = -> await cachedData.save(STOREKEY)
 
 ############################################################
+fred = null
+
+############################################################
 export initialize = ->
     log "initialize"
     if cfg? then cachedData.initialize(cfg.persistentStateOptions) 
     else cachedData.initialize()
+
+    fred = new FRED(cfg.apiKeyFred)
 
     data.hicp = "i.US"
     data.mrr = "r.US"
@@ -72,16 +78,9 @@ heartbeat = ->
 requestMRR = ->
     log "requestMRR"
     try
-        url = "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=#{cfg.apiKeyFred}&file_type=json&sort_order=desc&limit=1"
-        response = await fetch(url)
-        mrrData = await response.json()
-        
-        # olog mrrData.observations[0]
-        mrr = parseFloat(mrrData.observations[0].value)
-        mrrDate = new Date(mrrData.observations[0].date)
-
+        { mrr, mrrDate } = await fred.getCurrentMRR()
+    
         data.mrr = "#{mrr.toFixed(2)}%"
-        
         data.mrrMeta = {
             source: '<a href="https://fred.stlouisfed.org/">FRED</a>',
             dataSet: "Federal Funds Target Range - Upper Limit (DFEDTARU)",
