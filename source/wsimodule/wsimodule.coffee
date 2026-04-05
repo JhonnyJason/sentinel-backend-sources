@@ -103,6 +103,8 @@ processMessage = (message, sock) ->
     switch msgObj.command
         when "getAllData" then sendAllData(sock)
         when "getAllMakroData" then sendAllData(sock)
+        when "getEventList" then sendEventList(sock)
+        when "getEventDates" then sendEventDates(msgObj.argument, sock)
         ## Admin Commands - for admin commands the authCode is the argument
         when "authorizeAdmin" then log "admin socket is authorized :-)"
         when "getSnapshotData" then getSnapshotData(sock)
@@ -201,6 +203,26 @@ sendAllData = (socket) ->
     catch err then bs.report("Command.sendAllData: "+err.message)
     return
 
+sendEventList = (socket) ->
+    log "sendEventList"
+    try
+        data = events.getAllEvents()
+        type = "eventList"
+        msg = JSON.stringify({type, data})
+        log msg
+        socket.send(msg)
+    catch err then bs.report("Command.sendEventList: "+err.message)
+
+sendEventDates = (id, socket) ->
+    log "sendEventDates"
+    try
+        dates = events.getEventDates(id)
+        data = { id, dates }
+        type = "eventDates"
+        msg = JSON.stringify({type, data})
+        log msg
+        socket.send(msg)
+    catch err then bs.report("Command.sendEventList: "+err.message)
 
 #endregion
 
