@@ -89,4 +89,4 @@ export cotDataRequestHeartbeatMS = 86_400_000 #24h
 
 # export testRun = "accounts"
 
-export testRun = "eventdata"
+# export testRun = "eventdata"

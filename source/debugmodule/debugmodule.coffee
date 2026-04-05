@@ -2,12 +2,12 @@ import { addModulesToDebug } from "thingy-debug"
 
 ############################################################
 modulesToDebug = {
-    allevents: true
+    # allevents: true
     # accessmodule: true
     # authmodule: true
     # cotdatamodule: true
     # eurodata: true
-    eventdatamodule: true
+    # eventdatamodule: true
     # usdata: true
     # japandata: true
     # swissdata: true

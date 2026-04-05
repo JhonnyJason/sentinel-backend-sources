@@ -46,7 +46,7 @@ heartbeat = ->
     else await retrieveEventData()
 
     olog eventSummary
-    olog idToEvent
+    # olog idToEvent
     
     return
 
