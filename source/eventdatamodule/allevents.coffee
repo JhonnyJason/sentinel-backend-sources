@@ -33,7 +33,8 @@ export allEvents = -> allInstances
 ############################################################
 # All Event Types
 # "ForecastAndDecisions"
-# "MakroData"
+# "USMakro"
+# "EUMakro"
 # "Company"
 # "Other"
 
@@ -111,7 +112,7 @@ allClasses.push(
     # Consumer Price Index Data Release Event
     class CPIEvent extends Event 
         constructor: ->
-            super("US CPI Report", "e003", "MakroData")
+            super("US CPI Report", "e003", "USMakro")
             @remoteId = 10
             @remoteName = "Consumer Price Index"
 
@@ -133,7 +134,7 @@ allClasses.push(
     # Gross Domestic Product Data Release Event
     class GDPEvent extends Event 
         constructor: ->
-            super("US GDP Report", "e004", "MakroData")
+            super("US GDP Report", "e004", "USMakro")
             @remoteId = 53
             @remoteName = "Gross Domestic Product"
 
@@ -154,7 +155,7 @@ allClasses.push(
     # Producer Price Index Data Release Event
     class PPIEvent extends Event 
         constructor: ->
-            super("US PPI Report", "e005", "MakroData")
+            super("US PPI Report", "e005", "USMakro")
             @remoteId = 46
             @remoteName = "Producer Price Index"
 
@@ -175,7 +176,7 @@ allClasses.push(
     # Retail Sales Data Release Event
     class RetailSalesRepEvent extends Event 
         constructor: ->
-            super("US Retail Sales Report", "e006", "MakroData")
+            super("US Retail Sales Report", "e006", "USMakro")
             @remoteId = 9
             @remoteName = "Advance Monthly Sales for Retail and Food Services"
 
@@ -196,7 +197,7 @@ allClasses.push(
     # Employment Situation Data Release Event
     class EmplSituationRepEvent extends Event 
         constructor: ->
-            super("US Employment Situation Report", "e007", "MakroData")
+            super("US Employment Situation Report", "e007", "USMakro")
             @remoteId = 50
             @remoteName = "Employment Situation"
 
@@ -217,7 +218,7 @@ allClasses.push(
     # Existing Home Sales Data Release Event
     class ExistingHomeSalesRepEvent extends Event 
         constructor: ->
-            super("US Existing Home Sales Report", "e008", "MakroData")
+            super("US Existing Home Sales Report", "e008", "USMakro")
             @remoteId = 291
             @remoteName = "Existing Home Sales"
 
@@ -238,7 +239,7 @@ allClasses.push(
     # Initial Jobless Claims Data Release Event
     class JoblessClaimsRepEvent extends Event 
         constructor: ->
-            super("US Jobless Claims Report", "e009", "MakroData")
+            super("US Jobless Claims Report", "e009", "USMakro")
             @remoteId = 180
             @remoteName = "Initial Claims"
 
@@ -259,7 +260,7 @@ allClasses.push(
     # Quarterly Financial Data Release Event
     class QuarterlyFinancialRepEvent extends Event 
         constructor: ->
-            super("US Quarterly Financial Report", "e010", "MakroData")
+            super("US Quarterly Financial Report", "e010", "USMakro")
             @remoteId = 434
             @remoteName = "Quarterly Financial Report"
 

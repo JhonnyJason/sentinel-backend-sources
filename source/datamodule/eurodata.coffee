@@ -113,8 +113,10 @@ requestHICP = ->
     log "requestHICP"
     try
         # prc_hicp_manr has no seasonal adjustment
-        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/M.RCH_A.CP00.EA20?format=JSON")
+        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.EA?format=JSON")
         hicpData = await response.json()
+        
+        # olog hicpData
 
         # log Object.keys(hicpData)
         # olog hicpData.value
@@ -144,7 +146,7 @@ requestHICP = ->
         
         data.hicpMeta = {
             source: '<a href="https://ec.europa.eu/eurostat" target="_blank">Eurostat</a>',
-            dataSet: "HICP monthly data - annual rate of change (prc_hicp_manr/M.RCH_A.CP00.EA20)",
+            dataSet: "HICP monthly data - annual rate of change (prc_hicp_minr/M.RCH_A.TOTAL.EA)",
             date: dateString
         }
 

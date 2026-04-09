@@ -114,9 +114,8 @@ requestMRR = ->
 ############################################################
 requestHICP = ->
     log "requestHICP"
-    try # M.RCH_A.NSA.CP-HI00.EA20
-        # response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_manr?freq=M&unit=RCH_A&coicop=CP00&geo=EA20&time=2025-06&format=JSON") # Fails...
-        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/M.RCH_A.CP00.CH?format=JSON")
+    try 
+        response = await fetch("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.CH?format=JSON")
         hicpData = await response.json()
 
         # log Object.keys(hicpData)
@@ -147,7 +146,7 @@ requestHICP = ->
 
         data.hicpMeta = {
             source: '<a href="https://ec.europa.eu/eurostat" target="_blank">Eurostat</a>',
-            dataSet: "HICP monthly data - annual rate of change (prc_hicp_manr/M.RCH_A.CP00.CH)",
+            dataSet: "HICP monthly data - annual rate of change (prc_hicp_minr/M.RCH_A.TOTAL.CH)",
             date: dateString
         }
 
