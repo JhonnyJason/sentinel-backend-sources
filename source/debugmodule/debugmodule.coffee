@@ -19,7 +19,7 @@ modulesToDebug = {
     # scimodule: true
     # startupmodule: true
     # paramdatamodule: true
-    # wsimodule: true
+    wsimodule: true
 }
 
 addModulesToDebug(modulesToDebug)
