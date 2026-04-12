@@ -9,6 +9,7 @@ import * as bs from "./bugsnitch.js"
 
 ############################################################
 import * as data from "./datamodule.js"
+import * as events from "./eventdatamodule.js"
 import * as access from "./accessmodule.js"
 import * as paramD from "./paramdatamodule.js"
 
