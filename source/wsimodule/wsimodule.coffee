@@ -216,9 +216,8 @@ sendEventList = (socket) ->
 sendEventDates = (id, socket) ->
     log "sendEventDates"
     try
-        dates = events.getEventDates(id)
-        data = { id, dates }
-        type = "eventDates"
+        data = events.getEventDates(id)
+        type = "eventDates:#{id}"
         msg = JSON.stringify({type, data})
         log msg
         socket.send(msg)
