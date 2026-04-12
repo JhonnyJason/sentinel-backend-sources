@@ -7,7 +7,7 @@ modulesToDebug = {
     # authmodule: true
     # cotdatamodule: true
     # eurodata: true
-    # eventdatamodule: true
+    eventdatamodule: true
     # usdata: true
     # japandata: true
     # swissdata: true

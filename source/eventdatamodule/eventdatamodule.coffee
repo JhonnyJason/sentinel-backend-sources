@@ -45,7 +45,7 @@ heartbeat = ->
         if cfg.testRun == "eventdata" then await retrieveEventData()
     else await retrieveEventData()
 
-    olog eventSummary
+    # olog eventSummary
     # olog idToEvent
     
     return
@@ -62,4 +62,7 @@ retrieveEventData = ->
 
 ############################################################
 export getAllEvents = -> eventSummary
-export getEventDates = (id) -> idToEvent[id].dates
+export getEventDates = (id) -> 
+    log "getEventDates #{id}"
+    if idToEvent[id]? then return idToEvent[id].dates
+    else return null
