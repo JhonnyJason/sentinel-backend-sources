@@ -173,7 +173,7 @@ requestMRR = ->
         url = "https://www.rba.gov.au/statistics/tables/csv/a2-data.csv"
         options = {
             method: 'GET',
-            headers: { 
+            headers: {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
                 "Accept": "text/csv,application/octet-stream;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.9",
@@ -212,6 +212,9 @@ requestMRR = ->
 
         # olog { la1testRate, latestDate }
         mrrDate = new Date(latestDate)
+        
+        if !mrrDate? or !latestRate? or isNaN(latestRate)
+            throw new Error("Could not retrieve cash Rate!")
 
         data.mrr = "#{latestRate.toFixed(2)}%"
         data.mrrMeta = {
