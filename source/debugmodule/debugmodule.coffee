@@ -12,7 +12,7 @@ modulesToDebug = {
     # japandata: true
     # swissdata: true
     # canadadata: true
-    aussiedata: true
+    # aussiedata: true
     # ukdata: true
     # zealanddata: true
     # scicoremodule: true
