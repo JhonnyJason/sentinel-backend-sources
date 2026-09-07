@@ -9,7 +9,7 @@ import { report } from "./bugsnitchmodule.js"
 localCfg = Object.create(null)
 
 try
-    configPath = path.resolve(process.cwd(), "./.config.json")
+    configPath = path.resolve(process.cwd(), ".config.json")
     localCfgString = fs.readFileSync(configPath, 'utf8')
     localCfg = JSON.parse(localCfgString)
 catch err
@@ -27,15 +27,20 @@ export apiKeyAbs = localCfg.apiKeyAbs || ""
 export rbnzUserAgent = localCfg.rbnzUserAgent || ""
 
 ############################################################
+# local testing: "21e35d83b9960ce67da1b2a132edc99d633cf41336ac591960aa30ad1d958a25"
+# remote testing: "d9475cc24ed55635304a4b1e310dc4200a581c8f7099ab0dfae7cec2dad94fe1"
 export accessManagerId = localCfg.accessManagerId || ""
+
 export snitchSocket = localCfg.snitchSocket || "/run/bugsnitch.sk"
 
-############################################################
-localCfg = null
 
 ############################################################
-export name = "sentinel-backend"
-export legalOrigins = [
+export statisticsDataRequestHeartbeatMS = localCfg.makroHeartbeatMS || 3_600_000 #1h
+
+############################################################
+export cotDataRequestHeartbeatMS = localCfg.cotHeartbeatMS || 43_200_000 #12h
+
+export legalOrigins = localCfg.legalOrigins || [
     "localhost", 
     "localhost:3333", 
     "sentinel-backend.dotv.ee",
@@ -44,13 +49,15 @@ export legalOrigins = [
 ]
 
 ############################################################
+localCfg = null
+
+############################################################
+export name = "sentinel-backend"
+export version = "0.0.2"
+
+############################################################
 export fallbackAuthCode = "aaaaaaaabbbbbbbbccccccccdddddddd"
 
-############################################################
-export statisticsDataRequestHeartbeatMS = 3_600_000 #1h
-
-############################################################
-export cotDataRequestHeartbeatMS = 86_400_000 #24h
 
 ############################################################
 # export testRun = "euroMRR"

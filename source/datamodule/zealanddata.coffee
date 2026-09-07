@@ -85,7 +85,7 @@ export initialize = ->
 
     heartbeatMS = cfg.statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
-    heartbeat()        
+    # heartbeat() # only for testing -> immediate heartbeat
     return
 
 # https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-daily.xlsx # interest rates # column 0: daily dates, column 1: OCR

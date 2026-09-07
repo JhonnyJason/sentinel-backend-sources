@@ -35,7 +35,7 @@ export initialize = ->
     addEvent(evnt) for evnt in events
 
     setInterval(heartbeat, heartbeatMS)
-    heartbeat()
+    # heartbeat() # only for testing -> immediate heartbeat
     return
 
 ############################################################

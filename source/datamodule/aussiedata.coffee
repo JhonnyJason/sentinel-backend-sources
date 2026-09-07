@@ -64,7 +64,7 @@ export initialize = ->
 
     heartbeatMS = cfg.statisticsDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
-    heartbeat()
+    # heartbeat() # only for testing -> immediate heartbeat
     return
 
 

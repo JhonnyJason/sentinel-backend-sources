@@ -105,7 +105,8 @@ currencyShortformForCFTCName = (cftcName) ->
 export initialize = ->
     log "initialize"
 
-    state.initialize()
+    if cfg? then state.initialize(cfg.persistentStateOptions) 
+    else state.initialize()
 
     reportData = state.load("cotReportData")
     dateKeys = Object.keys(reportData).sort().reverse()
@@ -116,7 +117,7 @@ export initialize = ->
 
     heartbeatMS = cfg.cotDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
-    heartbeat()
+    # heartbeat()
     return
 
 ############################################################
