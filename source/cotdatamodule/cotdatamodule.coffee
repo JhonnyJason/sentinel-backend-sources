@@ -117,7 +117,7 @@ export initialize = ->
 
     heartbeatMS = cfg.cotDataRequestHeartbeatMS
     setInterval(heartbeat, heartbeatMS)
-    # heartbeat()
+    # heartbeat() # only for testing -> immediate heartbeat
     return
 
 ############################################################
